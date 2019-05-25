@@ -58,31 +58,49 @@ void LogAdapterOutputs(IDXGIAdapter* adapter)
 	}
 }
 
-void LogAdapters() 
+void LogAdapters(std::vector<IDXGIAdapter*>& adapterList)
 {
-	UINT i = 0;
-	IDXGIAdapter* adapter = nullptr;
-	std::vector<IDXGIAdapter*> adapterList;
-	while (mdxgiFactory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND) 
-	{ 
+	for (auto it = adapterList.begin(); it != adapterList.end(); ++it)
+	{
+		IDXGIAdapter* adapter = *it;
 		DXGI_ADAPTER_DESC desc;
 		adapter->GetDesc(&desc);
 		std::wstring text = L"***Adapter: ";
 		text += desc.Description;
 		text += L"\n";
 		wcout << text;
+		LogAdapterOutputs(adapter);
+	}	
+}
+
+std::vector<IDXGIAdapter*> GetAdapters()
+{
+	UINT i = 0;
+	IDXGIAdapter* adapter = nullptr;
+	std::vector<IDXGIAdapter*> adapterList;
+	while (mdxgiFactory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND)
+	{
+		DXGI_ADAPTER_DESC desc;
+		adapter->GetDesc(&desc);
 		adapterList.push_back(adapter);
 		++i;
-	} 
-	for (size_t i = 0; i < adapterList.size(); ++i) 
-	{ 
-		LogAdapterOutputs(adapterList[i]);
+	}
+	return adapterList;
+}
+
+void ReleaseAdapters(std::vector<IDXGIAdapter*>& adapterList)
+{
+	for (size_t i = 0; i < adapterList.size(); ++i)
+	{
 		ReleaseCom(adapterList[i]);
-	} 
+	}
 }
 
 int main()
 {
 	CreateDXGIFactory1(IID_PPV_ARGS(&mdxgiFactory));
-	LogAdapters();
+	// move semantics
+	std::vector<IDXGIAdapter*> adapters = GetAdapters();
+	LogAdapters(adapters);
+	ReleaseAdapters(adapters);
 }

@@ -1,5 +1,5 @@
 #pragma once
-#pragma comment(lib,"d3dcompiler.lib")
+#pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "Kernel32.lib")
@@ -9,6 +9,14 @@
 #include <d3d12.h>
 #include <D3Dcompiler.h>
 
-#ifndef ReleaseCom
-#define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
-#endif
+void ReleaseCom(IUnknown* pUnk)
+{
+	if (!pUnk)
+		return;
+	pUnk->Release();
+	pUnk = 0;
+}
+
+//#ifndef ReleaseCom
+//#define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
+//#endif
