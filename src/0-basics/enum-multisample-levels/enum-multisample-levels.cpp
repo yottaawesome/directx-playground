@@ -9,7 +9,7 @@ int main()
 	ComPtr<ID3D12Device> d3d12Device;
 	D3D12CreateDevice(
 		nullptr, // use default adapter
-		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_1, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
 		IID_PPV_ARGS(&d3d12Device)
 	);
 
@@ -25,14 +25,19 @@ int main()
 	msQualityLevels.SampleCount = 4; 
 	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE; 
 	msQualityLevels.NumQualityLevels = 0; 
-	d3d12Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels, sizeof(msQualityLevels));
+
+	// https://docs.microsoft.com/en-us/windows/desktop/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport
+	d3d12Device->CheckFeatureSupport(
+		D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, // https://docs.microsoft.com/en-us/windows/desktop/api/d3d12/ne-d3d12-d3d12_feature
+		&msQualityLevels, // This data structure depends on the D3D12_FEATURE parameter
+		sizeof(msQualityLevels));
 
 	std::cout << "Requesting quality levels for:" << std::endl;
 	std::cout << "  Back buffer format: " << msQualityLevels.Format << std::endl;
 	std::cout << "  Sample count: " << msQualityLevels.SampleCount << std::endl;
 	std::cout << "  Flags: " << msQualityLevels.Flags << std::endl;
-
 	std::cout << "Quality levels: " << msQualityLevels.NumQualityLevels << std::endl;
+
 	return 0;
 }
 
