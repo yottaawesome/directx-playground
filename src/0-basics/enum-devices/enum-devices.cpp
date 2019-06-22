@@ -11,6 +11,9 @@ using std::wcout;
 IDXGIFactory4* mdxgiFactory;
 DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
+/**
+* Enumerates and logs the monitor display modes
+*/
 void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 {
 	UINT count = 0;
@@ -18,7 +21,7 @@ void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 
 	// Call with nullptr to get list count.
 	output->GetDisplayModeList(format, flags, &count, nullptr);
-
+	// Fill the list
 	std::vector<DXGI_MODE_DESC> modeList(count);
 	output->GetDisplayModeList(format, flags, &count, &modeList[0]);
 
@@ -36,6 +39,9 @@ void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 	}
 }
 
+/**
+* Enumerates and logs the outputs (the monitors)
+*/
 void LogAdapterOutputs(IDXGIAdapter* adapter)
 {
 	UINT i = 0;
@@ -58,6 +64,9 @@ void LogAdapterOutputs(IDXGIAdapter* adapter)
 	}
 }
 
+/**
+* Print out the adapter names, video and system memory
+*/
 void LogAdapters(std::vector<IDXGIAdapter*>& adapterList)
 {
 	for (auto it = adapterList.begin(); it != adapterList.end(); ++it)
@@ -65,14 +74,18 @@ void LogAdapters(std::vector<IDXGIAdapter*>& adapterList)
 		IDXGIAdapter* adapter = *it;
 		DXGI_ADAPTER_DESC desc;
 		adapter->GetDesc(&desc);
-		std::wstring text = L"***Adapter: ";
-		text += desc.Description;
-		text += L"\n";
-		wcout << text;
+		wcout << L"***Adapter:";
+		wcout << "\n  Name: " << desc.Description;
+		wcout << "\n  Dedicated system memory: " << desc.DedicatedSystemMemory;
+		wcout << "\n  Dedicated video memory: " << desc.DedicatedVideoMemory;
+		wcout << "\n";
 		LogAdapterOutputs(adapter);
 	}	
 }
 
+/**
+* Enumerates the Adapter list (the GPUs)
+*/
 std::vector<IDXGIAdapter*> GetAdapters()
 {
 	UINT i = 0;
