@@ -8,6 +8,6 @@
 #define PCH_H
 
 // add headers that you want to pre-compile here
-#include "../include/shared.h"
+#include "shared.internal.h"
 
 #endif //PCH_H

@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
 	msQualityLevels.Format = mBackBufferFormat; 
 	msQualityLevels.SampleCount = 4; 
 	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE; 
+	// ID3D12Device::CheckFeatureSupport() will fill this out
 	msQualityLevels.NumQualityLevels = 0; 
 
 	// https://docs.microsoft.com/en-us/windows/desktop/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport
