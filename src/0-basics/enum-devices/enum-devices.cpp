@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
-#include "enum-devices.h"
 #include <string>
 #include <iostream>
+#include "../shared/shared.h"
 
 using std::vector;
 using std::string;
@@ -98,6 +98,7 @@ void ReleaseAdapters(std::vector<IDXGIAdapter*>& adapterList)
 
 int main()
 {
+	// DirectX Graphics Infrastructure
 	CreateDXGIFactory1(IID_PPV_ARGS(&mdxgiFactory));
 	// move semantics
 	std::vector<IDXGIAdapter*> adapters = GetAdapters();
