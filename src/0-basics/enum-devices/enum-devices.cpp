@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "../shared/shared.h"
+#include "header.h"
 
 using std::vector;
 using std::string;

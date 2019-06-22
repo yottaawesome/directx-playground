@@ -164,6 +164,14 @@
   <ItemGroup>
     <ClCompile Include="enum-devices.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lib-shared\lib-shared.vcxproj">
+      <Project>{633ff037-c127-48f9-91d5-773b60c6872c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="header.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
