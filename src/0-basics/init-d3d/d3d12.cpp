@@ -6,6 +6,10 @@ using Microsoft::WRL::ComPtr;
 ID3D12Device* CreateAD3D12Device()
 {
 	// Step 1: acquire device
+	ComPtr<ID3D12Debug> debugController;
+	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
+	debugController->EnableDebugLayer();
+
 	ID3D12Device* d3d12Device;
 	ThrowIfFailed(
 		D3D12CreateDevice(
@@ -27,12 +31,11 @@ ID3D12Fence* CreateFence(ID3D12Device* d3d12Device, UINT& mRtvDescriptorSize, UI
 	return fence;
 }
 
-bool AssertMSAAQualitySupport(ID3D12Device* d3d12Device)
+UINT DetermineMSAAQualitySupport(ID3D12Device* d3d12Device, DXGI_FORMAT mBackBufferFormat, UINT sampleCount)
 {
-	DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
 	msQualityLevels.Format = mBackBufferFormat;
-	msQualityLevels.SampleCount = 4;
+	msQualityLevels.SampleCount = sampleCount;
 	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 	msQualityLevels.NumQualityLevels = 0;
 
@@ -41,7 +44,7 @@ bool AssertMSAAQualitySupport(ID3D12Device* d3d12Device)
 		&msQualityLevels,
 		sizeof(msQualityLevels));
 
-	return msQualityLevels.NumQualityLevels > 0;
+	return msQualityLevels.NumQualityLevels;
 }
 
 void CreateCommandObjects(ID3D12Device* d3d12Device, CommandObjects& commandObjects)
@@ -58,4 +61,28 @@ void CreateCommandObjects(ID3D12Device* d3d12Device, CommandObjects& commandObje
 		nullptr,
 		IID_PPV_ARGS(&commandObjects.mCommandList)));
 	commandObjects.mCommandList->Close();
+}
+
+IDXGISwapChain* CreateSwapChain(IDXGIFactory4* mdxgiFactory, ID3D12CommandQueue* mCommandQueue, HWND mhMainWnd, UINT mClientWidth, UINT mClientHeight, DXGI_FORMAT mBackBufferFormat, UINT SwapChainBufferCount, bool useMsaa, UINT samples, UINT m4xMsaaQuality)
+{
+	IDXGISwapChain* mSwapChain = nullptr;
+	DXGI_SWAP_CHAIN_DESC sd;  
+	sd.BufferDesc.Width = mClientWidth;  
+	sd.BufferDesc.Height = mClientHeight;  
+	sd.BufferDesc.RefreshRate.Numerator = 60;  
+	sd.BufferDesc.RefreshRate.Denominator = 1;  
+	sd.BufferDesc.Format = mBackBufferFormat;  
+	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;  
+	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;  
+	sd.SampleDesc.Count = useMsaa ? samples : 1;
+	sd.SampleDesc.Quality = useMsaa ? (m4xMsaaQuality - 1) : 0;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  
+	sd.BufferCount = SwapChainBufferCount;  
+	sd.OutputWindow = mhMainWnd;  
+	sd.Windowed = true;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;  
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;  
+	// Note: Swap chain uses queue to perform flush.  
+	ThrowIfFailed(mdxgiFactory->CreateSwapChain(mCommandQueue, &sd, &mSwapChain));
+	return mSwapChain;
 }
