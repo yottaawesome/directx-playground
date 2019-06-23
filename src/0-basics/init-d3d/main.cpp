@@ -13,6 +13,7 @@ int main(int argc, char* argv[])
 
 		DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		UINT sampleCount = 4;
+		UINT bufferCount = 2;
 
 		// Create Device
 		ComPtr<ID3D12Device> device = CreateAD3D12Device();
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
 		ComPtr<ID3D12CommandAllocator> mDirectCmdListAlloc = commandObjects.mDirectCmdListAlloc;
 		ComPtr<ID3D12GraphicsCommandList> mCommandList = commandObjects.mCommandList;
 
-		// Create 
+		// Create swap chain
 		IDXGIFactory4* mdxgiFactory;
 		CreateDXGIFactory1(IID_PPV_ARGS(&mdxgiFactory));
 		RECT r;
@@ -44,10 +45,15 @@ int main(int argc, char* argv[])
 			r.right, 
 			r.bottom, 
 			mBackBufferFormat, 
-			2, 
+			bufferCount, 
 			false, 
 			sampleCount,
 			msaaQualityLevels);
+
+		// Create Descriptor Heaps
+		ComPtr<ID3D12DescriptorHeap> mRtvHeap;
+		ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+		CreateRtvAndDsvDescriptorHeaps(device.Get(), bufferCount, mRtvHeap.GetAddressOf(), mDsvHeap.GetAddressOf());
 
 		MSG msg;
 		while (GetMessage(&msg, nullptr, 0, 0))
