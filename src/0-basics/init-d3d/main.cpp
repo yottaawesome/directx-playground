@@ -57,6 +57,40 @@ int main(int argc, char* argv[])
 
 		ComPtr<ID3D12Resource> mSwapChainBuffer[bufferCount];
 		CreateRenderTargetView(device.Get(), swapChain.Get(), mRtvHeap.Get(), mRtvDescriptorSize, bufferCount, mSwapChainBuffer);
+		DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		ComPtr<ID3D12Resource> mDepthStencilBuffer;
+		UINT64 mCurrentFence = 0;
+		ComPtr<ID3D12Fence> mFence;
+		ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE,
+			IID_PPV_ARGS(&mFence)));
+		D3D12_VIEWPORT mScreenViewport;
+		D3D12_RECT mScissorRect;
+		CreateDepthAndStencilBuffer
+		(
+			device.Get(),
+			swapChain.Get(),
+			mRtvHeap.Get(),
+			mDsvHeap.Get(),
+			bufferCount,
+			r.right,
+			r.bottom,
+			mBackBufferFormat,
+			mSwapChainBuffer,
+			mRtvDescriptorSize,
+			false,
+			sampleCount,
+			4,
+			mDepthStencilFormat,
+			mDepthStencilBuffer,
+			mCommandList, 
+			mCommandQueue.Get(), 
+			mCurrentFence,
+			mFence.Get(),
+			mScreenViewport,
+			mScissorRect,
+			mDirectCmdListAlloc
+		);
+		UINT mCurrBuffer = 0;
 
 		MSG msg = { 0 };
 		while (msg.message != WM_QUIT)
@@ -70,7 +104,21 @@ int main(int argc, char* argv[])
 			// Otherwise, do animation/game stuff.
 			else
 			{
-				//Draw(mTimer);
+				Draw(
+					mDirectCmdListAlloc, 
+					mCommandList, 
+					mScreenViewport, 
+					mDsvHeap.Get(), 
+					mScissorRect, 
+					bufferCount, 
+					mCommandQueue.Get(), 
+					mCurrentFence, 
+					mRtvDescriptorSize, 
+					mFence.Get(), 
+					mSwapChainBuffer, 
+					mRtvHeap.Get(), 
+					swapChain.Get(), 
+					mCurrBuffer);
 			}
 		}
 
