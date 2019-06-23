@@ -9,18 +9,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			return 0;
 
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code here...
-		EndPaint(hWnd, &ps);
-		return 0;
+		case WM_PAINT:
+			hdc = BeginPaint(hWnd, &ps);
+			// TODO: Add any drawing code here...
+			EndPaint(hWnd, &ps);
+			return 0;
 
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
 

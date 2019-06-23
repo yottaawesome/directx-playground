@@ -103,3 +103,17 @@ void CreateRtvAndDsvDescriptorHeaps(ID3D12Device* md3dDevice, UINT SwapChainBuff
 	dsvHeapDesc.NodeMask = 0;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap)));
 }
+
+void CreateRenderTargetView(ID3D12Device* md3dDevice, IDXGISwapChain* mSwapChain, ID3D12DescriptorHeap* mRtvHeap, UINT& mRtvDescriptorSize, const UINT SwapChainBufferCount, ComPtr<ID3D12Resource>* mSwapChainBuffer)
+{
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
+	for (UINT i = 0; i < SwapChainBufferCount; i++) 
+	{  
+		// Get the ith buffer in the swap chain.  
+		ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])));  
+		// Create an RTV to it.  
+		md3dDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);  
+		// Next entry in heap.  
+		rtvHeapHandle.Offset(1, mRtvDescriptorSize);
+	}
+}

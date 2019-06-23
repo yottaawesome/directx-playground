@@ -162,6 +162,7 @@
   <ItemGroup>
     <ClInclude Include="h\pch.h" />
     <ClInclude Include="h\shared.internal.h" />
+    <ClInclude Include="include\d3dx12.h" />
     <ClInclude Include="include\shared.h" />
   </ItemGroup>
   <ItemGroup>

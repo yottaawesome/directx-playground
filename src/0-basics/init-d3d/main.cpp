@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 
 		DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		UINT sampleCount = 4;
-		UINT bufferCount = 2;
+		const UINT bufferCount = 2;
 
 		// Create Device
 		ComPtr<ID3D12Device> device = CreateAD3D12Device();
@@ -55,11 +55,23 @@ int main(int argc, char* argv[])
 		ComPtr<ID3D12DescriptorHeap> mDsvHeap;
 		CreateRtvAndDsvDescriptorHeaps(device.Get(), bufferCount, mRtvHeap.GetAddressOf(), mDsvHeap.GetAddressOf());
 
-		MSG msg;
-		while (GetMessage(&msg, nullptr, 0, 0))
+		ComPtr<ID3D12Resource> mSwapChainBuffer[bufferCount];
+		CreateRenderTargetView(device.Get(), swapChain.Get(), mRtvHeap.Get(), mRtvDescriptorSize, bufferCount, mSwapChainBuffer);
+
+		MSG msg = { 0 };
+		while (msg.message != WM_QUIT)
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			// If there are Window messages then process them.
+			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			// Otherwise, do animation/game stuff.
+			else
+			{
+				//Draw(mTimer);
+			}
 		}
 
 		return (int)msg.wParam;
