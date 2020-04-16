@@ -33,3 +33,4 @@
 
 Debug/
 .vs/
+/src/0-basics/lib/*.pdb
