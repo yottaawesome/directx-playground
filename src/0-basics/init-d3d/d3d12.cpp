@@ -226,9 +226,10 @@ void CreateDepthAndStencilBuffer(
 	optClear.Format = mDepthStencilFormat;
 	optClear.DepthStencil.Depth = 1.0f;
 	optClear.DepthStencil.Stencil = 0;
+	CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
 	ThrowIfFailed(
 		md3dDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
 			&depthStencilDesc,
 			D3D12_RESOURCE_STATE_COMMON,
@@ -250,12 +251,13 @@ void CreateDepthAndStencilBuffer(
 	);
 
 	// Transition the resource from its initial state to be used as a depth buffer.
+	auto transition = CD3DX12_RESOURCE_BARRIER::Transition(
+		mDepthStencilBuffer.Get(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	mCommandList->ResourceBarrier(
 		1, 
-		&CD3DX12_RESOURCE_BARRIER::Transition(
-			mDepthStencilBuffer.Get(),
-			D3D12_RESOURCE_STATE_COMMON, 
-			D3D12_RESOURCE_STATE_DEPTH_WRITE));
+		&transition);
 
 	// Execute the resize commands.
 	ThrowIfFailed(mCommandList->Close());
@@ -302,13 +304,14 @@ void Draw(
 	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
 
 	// Indicate a state transition on the resource usage.
+	CD3DX12_RESOURCE_BARRIER transition = CD3DX12_RESOURCE_BARRIER::Transition(
+		mSwapChainBuffer[mCurrBackBuffer].Get(),
+		D3D12_RESOURCE_STATE_PRESENT,
+		D3D12_RESOURCE_STATE_RENDER_TARGET
+	);
 	mCommandList->ResourceBarrier(
 		1,
-		&CD3DX12_RESOURCE_BARRIER::Transition(
-			mSwapChainBuffer[mCurrBackBuffer].Get(),
-			D3D12_RESOURCE_STATE_PRESENT, 
-			D3D12_RESOURCE_STATE_RENDER_TARGET
-		)
+		&transition
 	);
 
 	// Set the viewport and scissor rect.  This needs to be reset whenever the command list is reset.
@@ -336,24 +339,28 @@ void Draw(
 	);
 
 	// Specify the buffers we are going to render to.
+	auto cpuDescriptorHandle = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
+	CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
+		mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
+		mCurrBackBuffer,
+		mRtvDescriptorSize
+	);
 	mCommandList->OMSetRenderTargets(
-		1, 
-		&CD3DX12_CPU_DESCRIPTOR_HANDLE(
-			mRtvHeap->GetCPUDescriptorHandleForHeapStart(),
-			mCurrBackBuffer,
-			mRtvDescriptorSize
-		), 
-		true, 
-		&mDsvHeap->GetCPUDescriptorHandleForHeapStart());
+		1,
+		&handle,
+		true,
+		&cpuDescriptorHandle
+	);
 
 	// Indicate a state transition on the resource usage.
+	auto transition2 = CD3DX12_RESOURCE_BARRIER::Transition(
+		mSwapChainBuffer[mCurrBackBuffer].Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_PRESENT
+	);
 	mCommandList->ResourceBarrier(
 		1, 
-		&CD3DX12_RESOURCE_BARRIER::Transition(
-			mSwapChainBuffer[mCurrBackBuffer].Get(),
-			D3D12_RESOURCE_STATE_RENDER_TARGET, 
-			D3D12_RESOURCE_STATE_PRESENT
-		)
+		&transition2
 	);
 
 	// Done recording commands.
