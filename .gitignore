@@ -35,3 +35,5 @@ Debug/
 .vs/
 /src/0-basics/lib/*.pdb
 /src/0-basics/lib/*.idb
+
+vcpkg_installed/
