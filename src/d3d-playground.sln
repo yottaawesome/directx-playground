@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enum-devices", "enum-devices\enum-devices.vcxproj", "{B2A62B6B-7E0B-4FC5-9C59-EF13342529C0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enum-devices", "0-basics\enum-devices\enum-devices.vcxproj", "{B2A62B6B-7E0B-4FC5-9C59-EF13342529C0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enum-multisample-levels", "enum-multisample-levels\enum-multisample-levels.vcxproj", "{011F79D0-643F-485B-8DE9-8E76B39849BC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enum-multisample-levels", "0-basics\enum-multisample-levels\enum-multisample-levels.vcxproj", "{011F79D0-643F-485B-8DE9-8E76B39849BC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F2FC7712-489F-45D0-B66E-200B1E197AD5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-shared", "lib-shared\lib-shared.vcxproj", "{633FF037-C127-48F9-91D5-773B60C6872C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib-shared", "0-basics\lib-shared\lib-shared.vcxproj", "{633FF037-C127-48F9-91D5-773B60C6872C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "check-feature-levels", "check-feature-levels\check-feature-levels.vcxproj", "{FEEF5DAE-42A4-4918-9BD3-79D8BB0D1276}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "check-feature-levels", "0-basics\check-feature-levels\check-feature-levels.vcxproj", "{FEEF5DAE-42A4-4918-9BD3-79D8BB0D1276}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "init-d3d", "init-d3d\init-d3d.vcxproj", "{AA395E64-7967-4C8A-A940-F1038B455AFF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "init-d3d", "0-basics\init-d3d\init-d3d.vcxproj", "{AA395E64-7967-4C8A-A940-F1038B455AFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

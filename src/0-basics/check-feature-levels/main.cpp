@@ -3,10 +3,8 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "Kernel32.lib")
 
-#include <directx/d3d12.h>
-#include <directx/d3dx12.h>
-#include <d3dcompiler.h>
 import std;
+import featurelevels;
 
 template<typename T>
 struct ComPtr
@@ -82,7 +80,7 @@ struct ComPtr
 
 struct DxError : std::runtime_error
 {
-	DxError(HRESULT hr, const std::source_location& loc = std::source_location::current()) 
+	DxError(Win32::HRESULT hr, const std::source_location& loc = std::source_location::current()) 
 		: std::runtime_error(std::format("{} -> {}:{}:{}", hr, loc.function_name(), loc.file_name(), loc.line()))
 	{ }
 };
@@ -91,26 +89,26 @@ int main(int argc, char* argv[])
 try
 {
 	// Step 1: acquire device
-	ComPtr<ID3D12Device> d3d12Device;
-	HRESULT hr = D3D12CreateDevice(
+	ComPtr<Win32::ID3D12Device> d3d12Device;
+	Win32::HRESULT hr = Win32::D3D12CreateDevice(
 		nullptr, // use default adapter
-		D3D_FEATURE_LEVEL_12_1, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
-		__uuidof(ID3D12Device),
+		Win32::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_12_1, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
+		__uuidof(Win32::ID3D12Device),
 		d3d12Device.VoidAddress()
 	);
-	if (FAILED(hr))
+	if (Win32::HrFailed(hr))
 		throw DxError(hr);
 
 	// Step 2: arrange feature levels and presentation
 	constexpr std::array FeatureLevels
 	{ 
-		D3D_FEATURE_LEVEL_12_0,	// Then check for 12 support
-		D3D_FEATURE_LEVEL_11_0, // Then check for API 11 support
-		D3D_FEATURE_LEVEL_10_0,	// And so on...
-		D3D_FEATURE_LEVEL_9_3
+		Win32::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_12_0,	// Then check for 12 support
+		Win32::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0, // Then check for API 11 support
+		Win32::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_10_0,	// And so on...
+		Win32::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_9_3
 	};
 
-	using Pair = std::pair<D3D_FEATURE_LEVEL, std::string_view>;
+	using Pair = std::pair<Win32::D3D_FEATURE_LEVEL, std::string_view>;
 	constexpr std::array FeatureLevel
 	{
 		Pair{ D3D_FEATURE_LEVEL_12_1, "D3D12.1"},
@@ -121,18 +119,18 @@ try
 	};
 
 	// Step 3: populate request struct
-	D3D12_FEATURE_DATA_FEATURE_LEVELS featureLevelsInfo{
-		.NumFeatureLevels = static_cast<UINT>(FeatureLevels.size()),
+	Win32::D3D12_FEATURE_DATA_FEATURE_LEVELS featureLevelsInfo{
+		.NumFeatureLevels = static_cast<unsigned>(FeatureLevels.size()),
 		.pFeatureLevelsRequested = FeatureLevels.data()
 	};
 
 	// Step 4: request information 
 	hr = d3d12Device->CheckFeatureSupport(
-		D3D12_FEATURE_FEATURE_LEVELS, 
+		Win32::D3D12_FEATURE::D3D12_FEATURE_FEATURE_LEVELS,
 		&featureLevelsInfo, 
 		sizeof(featureLevelsInfo)
 	);
-	if (FAILED(hr))
+	if (Win32::HrFailed(hr))
 		throw DxError(hr);
 
 	std::println("Checking support for the following feature levels:");
