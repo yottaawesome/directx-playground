@@ -1,19 +1,19 @@
-#include <iostream>
 #include <wrl.h>
-#include <stdexcept>
-#include <string>
-#include "../lib-shared/include/shared.h"
+#include <directx/d3d12.h>
+#include <directx/d3dx12.h>
+#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "dxgi.lib")
+import std;
 
 using Microsoft::WRL::ComPtr;
 
 int main(int argc, char* argv[])
 {
 	ComPtr<ID3D12Device> d3d12Device;
-	ThrowIfFailed(
 		D3D12CreateDevice(
 			nullptr, // use default adapter
 			D3D_FEATURE_LEVEL_12_1, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
-			IID_PPV_ARGS(&d3d12Device)));
+			IID_PPV_ARGS(&d3d12Device));
 
 	DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels; 

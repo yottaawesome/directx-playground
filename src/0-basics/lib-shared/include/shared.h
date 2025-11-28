@@ -7,19 +7,21 @@
 #include <string>
 #include <comdef.h>
 
-class DxException
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "DXGI.lib")
+
+struct DxException
 {
-	public:
-		DxException() = default;
-		DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& filename, int lineNumber);
+	DxException() = default;
+	DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& filename, int lineNumber);
 
-		std::wstring ToWString()const;
-		std::string ToString()const;
+	std::wstring ToWString()const;
+	std::string ToString()const;
 
-		HRESULT ErrorCode = S_OK;
-		std::wstring FunctionName;
-		std::wstring Filename;
-		int LineNumber = -1;
+	HRESULT ErrorCode = S_OK;
+	std::wstring FunctionName;
+	std::wstring Filename;
+	int LineNumber = -1;
 };
 
 void ReleaseCom(IUnknown* pUnk);

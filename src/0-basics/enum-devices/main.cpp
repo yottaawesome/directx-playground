@@ -1,12 +1,13 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <iostream>
-#include "header.h"
+#include <dxgi1_4.h>
+#include <dxgi.h>
+#include <d3d12.h>
+#include <D3Dcompiler.h>
+#include <comdef.h>
 
-using std::vector;
-using std::string;
-using std::wcout;
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "DXGI.lib")
+
+import std;
 
 IDXGIFactory4* mdxgiFactory;
 DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -35,7 +36,7 @@ void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
 			L"Refresh = " + std::to_wstring(n) + L"/" + std::to_wstring(d) +
 			L"\n";
 
-		wcout << text;
+		std::wcout << text;
 	}
 }
 
@@ -54,11 +55,11 @@ void LogAdapterOutputs(IDXGIAdapter* adapter)
 		std::wstring text = L"***Output: ";
 		text += desc.DeviceName;
 		text += L"\n";
-		wcout << text;
+		std::wcout << text;
 
 		LogOutputDisplayModes(output, mBackBufferFormat);
 
-		ReleaseCom(output);
+		output->Release();
 
 		++i;
 	}
@@ -74,11 +75,11 @@ void LogAdapters(std::vector<IDXGIAdapter*>& adapterList)
 		IDXGIAdapter* adapter = *it;
 		DXGI_ADAPTER_DESC desc;
 		adapter->GetDesc(&desc);
-		wcout << L"***Adapter:";
-		wcout << "\n  Name: " << desc.Description;
-		wcout << "\n  Dedicated system memory: " << desc.DedicatedSystemMemory;
-		wcout << "\n  Dedicated video memory: " << desc.DedicatedVideoMemory;
-		wcout << "\n";
+		std::wcout << L"***Adapter:";
+		std::wcout << "\n  Name: " << desc.Description;
+		std::wcout << "\n  Dedicated system memory: " << desc.DedicatedSystemMemory;
+		std::wcout << "\n  Dedicated video memory: " << desc.DedicatedVideoMemory;
+		std::wcout << "\n";
 		LogAdapterOutputs(adapter);
 	}	
 }
@@ -105,7 +106,7 @@ void ReleaseAdapters(std::vector<IDXGIAdapter*>& adapterList)
 {
 	for (size_t i = 0; i < adapterList.size(); ++i)
 	{
-		ReleaseCom(adapterList[i]);
+		adapterList[i]->Release();
 	}
 }
 
