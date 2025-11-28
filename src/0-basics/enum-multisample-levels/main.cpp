@@ -9,8 +9,8 @@ int main(int argc, char* argv[])
 	D3D12::D3D12CreateDevice(
 		nullptr, // use default adapter
 		D3D12::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_12_1, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
-		__uuidof(**(&d3d12Device)), 
-		Win32::IID_PPV_ARGS_Helper(&d3d12Device)
+		__uuidof(&d3d12Device), 
+		&d3d12Device //Win32::IID_PPV_ARGS_Helper(&d3d12Device)
 	);
 
 	auto mBackBufferFormat = DXGI::DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
