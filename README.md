@@ -8,4 +8,4 @@ All source code of interest is located in `src`. Each project in `src` is contai
 
 ## Using the code
 
-All code is built with Visual Studio 2019 Community Edition and is targeting the latest Windows SDK. As long as you have these two installed, using the code should just be a case of cloning this repo, before opening, building and running the projects in VS2019.
+All code is built with Visual Studio 2026 Community Edition and is targeting the latest Windows SDK. As long as you have these two installed, using the code should just be a case of cloning this repo, before opening, building and running the projects in VS2026.
