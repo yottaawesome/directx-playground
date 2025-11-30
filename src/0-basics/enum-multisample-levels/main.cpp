@@ -29,12 +29,17 @@ int main(int argc, char* argv[])
 		sizeof(msQualityLevels)
 	);
 
-	std::cout << "Requesting quality levels for:" << std::endl;
-	std::cout << "  Back buffer format: " << msQualityLevels.Format << std::endl;
-	std::cout << "  Sample count: " << msQualityLevels.SampleCount << std::endl;
-	std::cout << "  Flags: " << msQualityLevels.Flags << std::endl;
-	std::cout << "Quality levels: " << msQualityLevels.NumQualityLevels << std::endl;
-
+	std::println(
+		"Requesting quality levels for:\n"
+		"  Back buffer format: {}\n"
+		"  Sample count: {}\n"
+		"  Flags: {}\n"
+		"Quality levels: {}",
+		static_cast<int>(msQualityLevels.Format), 
+		msQualityLevels.SampleCount, 
+		(int)msQualityLevels.Flags, 
+		msQualityLevels.NumQualityLevels
+	);
 	return 0;
 }
 
