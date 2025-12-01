@@ -2,3 +2,6 @@ export module shared;
 export import std;
 export import :win32;
 export import :window;
+export import :d3d12app;
+export import :com; 
+export import :error;

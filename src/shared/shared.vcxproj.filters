@@ -24,6 +24,15 @@
     <ClCompile Include="shared-window.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shared-d3d12app.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shared-error.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shared-com.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

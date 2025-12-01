@@ -144,6 +144,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="shared-com.ixx" />
+    <ClCompile Include="shared-d3d12app.ixx" />
+    <ClCompile Include="shared-error.ixx" />
     <ClCompile Include="shared-win32.ixx" />
     <ClCompile Include="shared-window.ixx" />
     <ClCompile Include="shared.ixx" />

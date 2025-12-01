@@ -20,6 +20,22 @@ export namespace Microsoft::WRL
 
 export namespace Win32
 {
+	template<auto VValue>
+	struct Win32Constant
+	{
+		operator decltype(VValue)(this auto&&) noexcept
+			requires (not std::invocable<decltype(VValue)>)
+		{
+			return VValue;
+		}
+
+		operator decltype(VValue)(this auto&&) noexcept
+			requires std::invocable<decltype(VValue)>
+		{
+			return VValue();
+		}
+	};
+
 	using
 		::HINSTANCE,
 		::HWND,
@@ -34,6 +50,23 @@ export namespace Win32
 		::DWORD,
 		::PVOID,
 		::LPVOID,
+		::WNDCLASSEXW,
+		::HBRUSH,
+		::MSG,
+		::LPSTR,
+		::GUID,
+		::HRESULT,
+		::FormatMessageA,
+		::LocalFree,
+		::PostQuitMessage,
+		::PeekMessageW,
+		::GetMessageW,
+		::TranslateMessage,
+		::DispatchMessageW,
+		::LoadCursorW,
+		::LoadIconW,
+		::GetStockObject,
+		::ShowWindow,
 		::GetWindowLongPtrW,
 		::DestroyWindow,
 		::DefWindowProcW,
@@ -89,12 +122,85 @@ export namespace Win32
 	constexpr auto CwUseDefault = CW_USEDEFAULT;
 	constexpr auto SpiGetNonClientMetrics = SPI_GETNONCLIENTMETRICS;
 	constexpr auto DefaultCharset = DEFAULT_CHARSET;
+
+	constexpr Win32Constant<IDI_APPLICATION> IdiApplication;
+	constexpr Win32Constant<IDC_ARROW> IdcArrow;
+
+	namespace ShowWindowOptions
+	{
+		enum
+		{
+			Hide = SW_HIDE,
+			ShowNormal = SW_SHOWNORMAL
+		};
+	}
+
+	namespace Brushes
+	{
+		enum
+		{
+			White = WHITE_BRUSH
+		};
+	}
+
+	namespace PeekMessageOptions
+	{
+		enum
+		{
+			NoRemove = PM_NOREMOVE,
+			Remove = PM_REMOVE,
+			NoYield = PM_NOYIELD
+		};
+	}
+
+	namespace FormatMessageOptions
+	{
+		enum
+		{
+			AllocateBuffer = FORMAT_MESSAGE_ALLOCATE_BUFFER,
+			FromSystem = FORMAT_MESSAGE_FROM_SYSTEM,
+			IgnoreInserts = FORMAT_MESSAGE_IGNORE_INSERTS
+		};
+	}
+
+	constexpr auto MakeHResult(long severity, long facility, long code) noexcept -> HRESULT
+	{
+		return MAKE_HRESULT(severity, facility, code);
+	}
+
+	constexpr auto Facility(HRESULT hr) noexcept -> long
+	{
+		return HRESULT_FACILITY(hr);
+	}
+
+	constexpr auto Code(HRESULT hr) noexcept -> long
+	{
+		return HRESULT_CODE(hr);
+	}
+
+	constexpr auto Severity(HRESULT hr) noexcept -> long
+	{
+		return HRESULT_SEVERITY(hr);
+	}
+
+	constexpr auto HrFailed(HRESULT hr) noexcept -> bool
+	{
+		return FAILED(hr);
+	}
+
+	constexpr auto HrSuccess(HRESULT hr) noexcept -> bool
+	{
+		return SUCCEEDED(hr);
+	}
 }
 
 export namespace D3D12
 {
 	using 
 		::D3D12CreateDevice,
+		::D3D12_DESCRIPTOR_HEAP_TYPE,
+		::D3D12_FENCE_FLAGS,
+		::ID3D12Fence,
 		::ID3D12Device,
 		::D3D12_FEATURE,
 		::D3D_FEATURE_LEVEL,

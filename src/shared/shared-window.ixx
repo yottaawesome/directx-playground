@@ -19,18 +19,18 @@ export namespace UI
 	using HwndUniquePtr = std::unique_ptr<std::remove_pointer_t<Win32::HWND>, Raii::Deleter<Win32::DestroyWindow>>;
 
 	template<Win32::DWORD VMessageId>
-	struct Message
+	struct Win32Message
 	{
 		Win32::HWND hwnd = nullptr;
-		unsigned uMsg = 0;
+		static constexpr unsigned uMsg = VMessageId;
 		Win32::WPARAM wParam = 0;
 		Win32::LPARAM lParam = 0;
 	};
 
-	template<typename T, Win32::DWORD VMsgId>
-	concept HandlesMessage = requires(T t)
+	template<typename T, typename M>
+	concept Handles = requires(T t, M m)
 	{
-		t.HandleMessage(Message<VMsgId>{});
+		{ t.OnMessage(m) } -> std::convertible_to<Win32::LRESULT>;
 	};
 
 	struct Window
@@ -40,20 +40,33 @@ export namespace UI
 		auto Initialise(this auto& self) -> void
 		{
 			self.RegisterClass();
+			self.CreateWindow(800, 600);
 		}
 
-		void RegisterClass(this Window& self)
+		void RegisterClass(this auto& self)
 		{
-			Win32::WNDCLASSW wc{
-				.lpfnWndProc = WindowProc<std::remove_reference_t<decltype(self)>>,
+			auto classEx = self.GetClass();
+			classEx.lpfnWndProc = WindowProc<std::remove_cvref_t<decltype(self)>>;
+			Win32::ATOM atom = Win32::RegisterClassExW(&classEx);
+			if (atom == 0)
+				throw std::runtime_error("Failed to register window class");
+		}
+
+		auto GetClass(this const Window& self) -> Win32::WNDCLASSEXW
+		{
+			return Win32::WNDCLASSEXW{
+				.cbSize = sizeof(Win32::WNDCLASSEXW),
 				.hInstance = Win32::GetModuleHandleW(nullptr),
+				.hIcon = Win32::LoadIconW(nullptr, Win32::IdiApplication),
+				.hCursor = Win32::LoadCursorW(nullptr, Win32::IdcArrow),
+				.hbrBackground = static_cast<Win32::HBRUSH>(Win32::GetStockObject(Win32::Brushes::White)),
 				.lpszClassName = L"Main D3D12 Window Class",
 			};
 		}
 
 		void CreateWindow(this Window& self, int width, int height)
 		{
-			Win32::CreateWindowExW(
+			Win32::HWND window = Win32::CreateWindowExW(
 				0,
 				L"Main D3D12 Window Class",
 				L"D3D12 Window",
@@ -67,6 +80,10 @@ export namespace UI
 				Win32::GetModuleHandleW(nullptr),
 				reinterpret_cast<Win32::LPVOID>(&self) // pass 'this' pointer for use in WM_NCCREATE
 			);
+			if (not window)
+				throw std::runtime_error("Failed to create window");
+
+			Win32::ShowWindow(self.window.get(), Win32::ShowWindowOptions::ShowNormal);
 		}
 
 		static constexpr std::array HandledMessages{
@@ -76,6 +93,16 @@ export namespace UI
 			Win32::Messages::Command,
 			Win32::Messages::NonClientDestroy
 		};
+
+		auto GetHandle(this auto&& self) -> Win32::HWND
+		{
+			return self.window.get();
+		}
+
+		auto OnMessage(this auto&& self, Win32Message<Win32::Messages::Paint> message) -> Win32::LRESULT
+		{
+			return Win32::DefWindowProcW(message.hwnd, message.uMsg, message.wParam, message.lParam);
+		}
 
 		template<typename TWindow>
 		static auto WindowProc(Win32::HWND hwnd, unsigned uMsg, Win32::WPARAM wParam, Win32::LPARAM lParam) -> Win32::LRESULT
@@ -105,32 +132,38 @@ export namespace UI
 				}
 			}
 
-			if (not pThis)
-				Win32::DefWindowProcW(hwnd, uMsg, wParam, lParam);
+			return pThis
+				? pThis->HandleMessage(hwnd, uMsg, wParam, lParam)
+				: Win32::DefWindowProcW(hwnd, uMsg, wParam, lParam);
+		}
 
-			return [=]<size_t...Indices>(std::index_sequence<Indices...>)
+		//
+		// Called by WindowProc, which then dispatches the message to either the generic handler
+		// or specific handlers by subclasses.
+		auto HandleMessage(
+			this auto&& self,
+			Win32::HWND hwnd,
+			unsigned msgType,
+			Win32::WPARAM wParam,
+			Win32::LPARAM lParam
+		) -> Win32::LRESULT
+		{
+			return[&self, hwnd, msgType, wParam, lParam]<size_t...Is>(std::index_sequence<Is...>)
 			{
-				Win32::LRESULT returnValue = 0;
-				bool handled = 
-					([&] constexpr -> bool
+				Win32::LRESULT result;
+				bool handled = (... or
+					[=, &self, &result]<typename TMsg = Win32Message<HandledMessages[Is]>>()
 					{
-						if constexpr (HandlesMessage<TWindow, HandledMessages[Indices]>)
-						{
-							returnValue = pThis->HandleMessage(
-								Message<HandledMessages[Indices]>{
-									.hwnd = hwnd,
-									.uMsg = uMsg,
-									.wParam = wParam,
-									.lParam = lParam
-								});
-							return true;
-						}
+						if constexpr (Handles<decltype(self), TMsg>)
+							return TMsg::uMsg == msgType ? (result = self.OnMessage(TMsg{ hwnd, wParam, lParam }), true) : false;
 						return false;
-					}() or ...);
-				return handled
-					? returnValue
-					: Win32::DefWindowProcW(hwnd, uMsg, wParam, lParam);
-			}(std::make_index_sequence<HandledMessages.size()>{});
+					}());
+				if (handled)
+					return result;
+				return msgType == Win32::Messages::Destroy
+					? (Win32::PostQuitMessage(0), 0)
+					: Win32::DefWindowProcW(hwnd, msgType, wParam, lParam);
+			}(std::make_index_sequence<HandledMessages.size()>());
 		}
 	};
 }
