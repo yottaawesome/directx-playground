@@ -15,13 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="shared.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shared-win32.ixx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="shared-window.ixx">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

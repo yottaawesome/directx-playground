@@ -1,0 +1,8 @@
+{
+  "name": "init-d3d12",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "directx-headers",
+    "directxmath"
+  ]
+}
