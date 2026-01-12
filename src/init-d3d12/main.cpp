@@ -16,14 +16,30 @@ struct D3D12State
 	void Initialise(this D3D12State& self)
 	{
 		self.InitDxInfrastructure()
-			.InitDescriptorSizes();
+			.InitDescriptorSizes()
+			.CheckMsaaQualityLevels()
+			.CreateCommandObjects()
+			.CreateSwapChain()
+			.CreateDescriptorHeaps();
+	}
 
+	auto CheckMsaaQualityLevels(this D3D12State& self) -> decltype(auto)
+	{
 		D3D12::D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS qualityLevels{
 			.Format = self.backBufferFormat,
 			.SampleCount = 4,
 			.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
 			.NumQualityLevels = 0
 		};
+		Com::HResult hr = self.d3d12Device->CheckFeatureSupport(
+			D3D12::D3D12_FEATURE::D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
+			&qualityLevels,
+			sizeof(qualityLevels)
+		);
+		if (not hr)
+			throw Error::ComError(hr, "Failed to check 4X MSAA quality level support");
+		self.msaaQualityLevels = qualityLevels.NumQualityLevels;
+		return self;
 	}
 
 	auto InitDxInfrastructure(this D3D12State& self) -> decltype(auto)
@@ -63,17 +79,75 @@ struct D3D12State
 		return self;
 	}
 
+	// TODO: Implement command queue, command list allocator, and command list creation
+	auto CreateCommandObjects(this D3D12State& self) -> decltype(auto)
+	{
+		D3D12::D3D12_COMMAND_QUEUE_DESC queueDesc{
+			.Type = D3D12::D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT,
+			.Flags = D3D12::D3D12_COMMAND_QUEUE_FLAGS::D3D12_COMMAND_QUEUE_FLAG_NONE,
+		};
+		Com::HResult hr = self.d3d12Device->CreateCommandQueue(
+			&queueDesc,
+			self.commandQueue.Uuid,
+			std::out_ptr(self.commandQueue)
+		);
+		if (not hr)
+			throw Error::ComError(hr, "Failed to create D3D12 Command Queue");
+
+		hr = self.d3d12Device->CreateCommandAllocator(
+			D3D12::D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT,
+			self.commandAllocator.Uuid,
+			std::out_ptr(self.commandAllocator)
+		);
+		if (not hr)
+			throw Error::ComError(hr, "Failed to create D3D12 Command Allocator");
+
+		hr = self.d3d12Device->CreateCommandList(
+			0,
+			D3D12::D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT,
+			self.commandAllocator.get(),
+			nullptr,
+			self.commandList.Uuid,
+			std::out_ptr(self.commandList)
+		);
+		if (not hr)
+			throw Error::ComError(hr, "Failed to create D3D12 Command List");
+		// Needs to be Close()d before we can call Reset() on it later.
+		self.commandList->Close();
+
+		return self;
+	}
+
+	// TODO: Implement swap chain creation
+	auto CreateSwapChain(this D3D12State& self) -> decltype(auto)
+	{
+		return self;
+	}
+
+	// TODO: Implement descriptor heap creation
+	auto CreateDescriptorHeaps(this D3D12State& self) -> decltype(auto)
+	{
+		return self;
+	}
+
 	DXGI::DXGI_FORMAT backBufferFormat = DXGI::DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	Com::Ptr<D3D12::ID3D12Device> d3d12Device;
 	Com::Ptr<DXGI::IDXGIFactory4> dxgiFactory;
 	Com::Ptr<D3D12::ID3D12Fence> fence;
+
+	Com::Ptr<D3D12::ID3D12CommandQueue> commandQueue;
+	Com::Ptr<D3D12::ID3D12CommandAllocator> commandAllocator;
+	Com::Ptr<D3D12::ID3D12GraphicsCommandList> commandList;
+	Com::Ptr<D3D12::ID3D12DescriptorHeap> descriptorHeap;
+
 	// render target view descriptor size
 	std::uint32_t rtvDescriptorSize = 0;
 	// depth stencil view descriptor size
 	std::uint32_t dsvDescriptorSize = 0;
 	// constant buffer view / shader resource view / unordered access view descriptor size
 	std::uint32_t cbvSrvUavDescriptorSize = 0;
+	std::uint32_t msaaQualityLevels = 0;
 };
 
 struct InitD3D12App : Shared::D3D12App

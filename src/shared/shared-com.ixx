@@ -21,9 +21,9 @@ export namespace Com
 
 		constexpr Ptr(T* typePtr) noexcept
 			: ptr(typePtr)
-		{
-		}
+		{ }
 
+		// Copy
 		constexpr Ptr(const Ptr& typePtr) noexcept
 			: ptr(typePtr.ptr)
 		{
@@ -38,12 +38,13 @@ export namespace Com
 			return self;
 		}
 
+		// Move
 		constexpr Ptr(Ptr&& other) noexcept
 			: ptr(other.ptr)
 		{
 			other.ptr = nullptr;
 		}
-		constexpr auto operator=(this Ptr& self, Ptr&& other) noexcept -> Ptr&
+		constexpr auto operator=(this Ptr& self, Ptr&& other) noexcept -> decltype(auto)
 		{
 			self.reset();
 			self.swap(other);
@@ -55,7 +56,13 @@ export namespace Com
 			return self.ptr;
 		}
 
-		constexpr auto reset(this Ptr& self) noexcept -> Ptr&
+		[[nodiscard]]
+		constexpr operator Win32::GUID(this const Ptr& self) noexcept
+		{
+			return self.Uuid;
+		}
+
+		constexpr auto reset(this Ptr& self) noexcept -> decltype(auto)
 		{
 			if (self.ptr)
 			{
@@ -65,6 +72,7 @@ export namespace Com
 			return self;
 		}
 
+		[[nodiscard]]
 		constexpr auto detach(this Ptr& self) noexcept -> T*
 		{
 			T* temp = self.ptr;
@@ -72,6 +80,7 @@ export namespace Com
 			return temp;
 		}
 
+		[[nodiscard]]
 		constexpr auto get(this const Ptr& self) noexcept -> T*
 		{
 			return self.ptr;
@@ -82,9 +91,10 @@ export namespace Com
 			std::swap(self.ptr, other.ptr);
 		}
 
+		[[nodiscard]]
 		constexpr auto AddressOf(this Ptr& self) noexcept -> void**
 		{
-			return (void**)&self.ptr;
+			return static_cast<void**>(&self.ptr);
 		}
 
 		T* ptr = nullptr;
