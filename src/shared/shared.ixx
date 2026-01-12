@@ -5,3 +5,5 @@ export import :window;
 export import :d3d12app;
 export import :com; 
 export import :error;
+export import :strings;
+export import :log;

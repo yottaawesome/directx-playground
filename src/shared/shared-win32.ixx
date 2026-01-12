@@ -56,6 +56,7 @@ export namespace Win32
 		::LPSTR,
 		::GUID,
 		::HRESULT,
+		::PWSTR,
 		::FormatMessageA,
 		::LocalFree,
 		::PostQuitMessage,
