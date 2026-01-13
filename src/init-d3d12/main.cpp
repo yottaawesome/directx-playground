@@ -53,7 +53,7 @@ struct D3D12State
 
 		hr = D3D12::D3D12CreateDevice(
 			nullptr, // use default adapter
-			D3D12::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_12_1, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
+			D3D12::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_12_2, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
 			self.d3d12Device.Uuid,
 			std::out_ptr(self.d3d12Device) //Win32::IID_PPV_ARGS_Helper(&d3d12Device)
 		);
@@ -167,9 +167,9 @@ struct InitD3D12App : Shared::D3D12App
 	D3D12State d3d12State;
 };
 
-auto wWinMain(Win32::HINSTANCE current, Win32::HINSTANCE previous, Win32::LPWSTR cmd, int cmdShow) -> int
+auto wWinMain(Win32::HINSTANCE, Win32::HINSTANCE, Win32::LPWSTR, int) -> int
 {
-	InitD3D12App app;;
+	InitD3D12App app;
 	app.Initialise();
 	return static_cast<int>(app.MainLoop());
 }

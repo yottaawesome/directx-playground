@@ -4,7 +4,7 @@ module;
 #include <windows.h>
 #include <wrl.h>
 #include <dxgi.h>
-#include <dxgi1_4.h>
+#include <dxgi1_5.h>
 #include <directx/d3d12.h>
 #include <directx/d3dx12.h>
 #include <d3dcommon.h>
@@ -223,6 +223,7 @@ export namespace DXGI
 {
 	using 
 		::CreateDXGIFactory1,
+		::CreateDXGIFactory2,
 		::IDXGIFactory4,
 		::IDXGIAdapter,
 		::IDXGIOutput,
