@@ -149,6 +149,7 @@
     <ClCompile Include="shared-error.ixx" />
     <ClCompile Include="shared-log.ixx" />
     <ClCompile Include="shared-strings.ixx" />
+    <ClCompile Include="shared-util.ixx" />
     <ClCompile Include="shared-win32.ixx" />
     <ClCompile Include="shared-window.ixx" />
     <ClCompile Include="shared.ixx" />

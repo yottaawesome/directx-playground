@@ -7,3 +7,4 @@ export import :com;
 export import :error;
 export import :strings;
 export import :log;
+export import :util;

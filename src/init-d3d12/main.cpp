@@ -5,6 +5,16 @@ import shared;
 
 struct D3D12State
 {
+	constexpr D3D12State() = default;
+
+	D3D12State(UI::Window* mainWindow) 
+		: mainWindow(mainWindow) 
+	{
+		Initialise();
+	}
+
+private:
+
 	/* Steps
 	1. Create the ID3D12Device using the D3D12CreateDevice function.
 	2. Create an ID3D12Fence object and query descriptor sizes.
@@ -118,9 +128,40 @@ struct D3D12State
 		return self;
 	}
 
-	// TODO: Implement swap chain creation
 	auto CreateSwapChain(this D3D12State& self) -> decltype(auto)
 	{
+		self.swapChain.reset();
+		DXGI::DXGI_SWAP_CHAIN_DESC swapChainDesc{
+			.BufferDesc{
+				.Width = self.mainWindow->GetDimensions().Width,
+				.Height = self.mainWindow->GetDimensions().Height,
+				.RefreshRate{
+					.Numerator = 60,
+					.Denominator = 1,
+				},
+				.Format = self.backBufferFormat,
+				.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+				.Scaling = DXGI_MODE_SCALING_UNSPECIFIED
+			},
+			.SampleDesc{
+				.Count= self.m4xMsaaState ? 4u : 1u,
+				.Quality = self.m4xMsaaState ? (self.msaaQualityLevels - 1) : 0,
+			},
+			.BufferUsage = DXGI::UsageRenderTargetOutput,
+			.BufferCount = self.SwapChainBufferCount,
+			.OutputWindow = self.mainWindow->GetHandle(),
+			.Windowed = true,
+			.SwapEffect = DXGI::DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_DISCARD,
+			.Flags = DXGI::DXGI_SWAP_CHAIN_FLAG::DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+		};
+		Com::HResult hr = self.dxgiFactory->CreateSwapChain(
+			self.commandQueue.get(),
+			&swapChainDesc,
+			std::out_ptr(self.swapChain)
+		);
+		if (not hr)
+			throw Error::ComError(hr, "Failed to create DXGI Swap Chain");
+
 		return self;
 	}
 
@@ -140,6 +181,7 @@ struct D3D12State
 	Com::Ptr<D3D12::ID3D12CommandAllocator> commandAllocator;
 	Com::Ptr<D3D12::ID3D12GraphicsCommandList> commandList;
 	Com::Ptr<D3D12::ID3D12DescriptorHeap> descriptorHeap;
+	Com::Ptr<DXGI::IDXGISwapChain> swapChain;
 
 	// render target view descriptor size
 	std::uint32_t rtvDescriptorSize = 0;
@@ -148,14 +190,18 @@ struct D3D12State
 	// constant buffer view / shader resource view / unordered access view descriptor size
 	std::uint32_t cbvSrvUavDescriptorSize = 0;
 	std::uint32_t msaaQualityLevels = 0;
+	std::uint32_t SwapChainBufferCount = 2;
+	UI::Window* mainWindow = nullptr;
+
+	bool m4xMsaaState = false;
 };
 
 struct InitD3D12App : Shared::D3D12App
 {
 	void Initialise(this InitD3D12App& self)
 	{
-		self.window.Initialise();
-		self.d3d12State.Initialise();
+		self.window = UI::Window{800, 600};
+		self.d3d12State = D3D12State{&self.window};
 	}
 
 	void OnIdle(this InitD3D12App& self)

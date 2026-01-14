@@ -16,6 +16,12 @@ export namespace Raii
 
 export namespace UI
 {
+	struct Dimensions
+	{
+		unsigned Width = 0;
+		unsigned Height = 0;
+	};
+
 	using HwndUniquePtr = std::unique_ptr<std::remove_pointer_t<Win32::HWND>, Raii::Deleter<Win32::DestroyWindow>>;
 
 	template<Win32::DWORD VMessageId>
@@ -35,7 +41,27 @@ export namespace UI
 
 	struct Window
 	{
-		HwndUniquePtr window;
+		constexpr Window() = default;
+
+		Window(const Window&) = delete;
+		Window& operator=(const Window&) = delete;
+
+		Window(Window&& other) 
+		{
+			Move(other);
+		};
+		auto operator=(this auto&& self, Window&& other) -> decltype(auto)
+		{
+			self.Move(other);
+			return decltype(self)(self);
+		};
+
+		constexpr Window(unsigned width, unsigned height)
+			: width(width), height(height)
+		{
+			if consteval { }
+			else { Initialise(); }
+		}
 
 		auto Initialise(this auto& self) -> void
 		{
@@ -66,7 +92,7 @@ export namespace UI
 
 		void CreateWindow(this Window& self, int width, int height)
 		{
-			Win32::HWND window = Win32::CreateWindowExW(
+			HWND hwnd = Win32::CreateWindowExW(
 				0,
 				L"Main D3D12 Window Class",
 				L"D3D12 Window",
@@ -80,7 +106,7 @@ export namespace UI
 				Win32::GetModuleHandleW(nullptr),
 				reinterpret_cast<Win32::LPVOID>(&self) // pass 'this' pointer for use in WM_NCCREATE
 			);
-			if (not window)
+			if (not self.window)
 				throw std::runtime_error("Failed to create window");
 
 			Win32::ShowWindow(self.window.get(), Win32::ShowWindowOptions::ShowNormal);
@@ -102,6 +128,28 @@ export namespace UI
 		auto OnMessage(this auto&& self, Win32Message<Win32::Messages::Paint> message) -> Win32::LRESULT
 		{
 			return Win32::DefWindowProcW(message.hwnd, message.uMsg, message.wParam, message.lParam);
+		}
+
+		void Move(this auto&& self, Window& other)
+		{
+			if (&self == &other)
+				return;
+
+			if (self.window)
+				Win32::SetWindowLongPtrW(self.window.get(), Win32::Gwlp_UserData, 0);
+
+			self.window = std::move(other.window);
+			self.width = other.width;
+			self.height = other.height;
+
+			if (self.window)
+			{
+				Win32::SetWindowLongPtrW(
+					self.window.get(),
+					Win32::Gwlp_UserData,
+					reinterpret_cast<Win32::LONG_PTR>(&self)
+				);
+			}
 		}
 
 		template<typename TWindow>
@@ -127,8 +175,12 @@ export namespace UI
 				// under the "Auto cleanup with CWnd::PostNcDestroy" header.
 				if (pThis and uMsg == Win32::Messages::NonClientDestroy)
 				{
-					Win32::SetWindowLongPtrW(hwnd, Win32::Gwlp_UserData, 0);
-					pThis->window.release();
+					// Only release if the message is for the currently managed window
+					if (pThis->window.get() == hwnd)
+					{
+						Win32::SetWindowLongPtrW(hwnd, Win32::Gwlp_UserData, 0);
+						pThis->window.release();
+					}
 				}
 			}
 
@@ -165,5 +217,15 @@ export namespace UI
 					: Win32::DefWindowProcW(hwnd, msgType, wParam, lParam);
 			}(std::make_index_sequence<HandledMessages.size()>());
 		}
+
+		auto GetDimensions(this const Window& self) noexcept -> Dimensions
+		{
+			return Dimensions{ self.width, self.height };
+		}
+
+	private:
+		HwndUniquePtr window;
+		unsigned width = 0;
+		unsigned height = 0;
 	};
 }

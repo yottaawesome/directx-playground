@@ -221,16 +221,23 @@ export namespace D3D12
 
 export namespace DXGI
 {
+	constexpr auto UsageRenderTargetOutput = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	using 
 		::CreateDXGIFactory1,
 		::CreateDXGIFactory2,
+		::IDXGISwapChain,
+		::IDXGIFactory,
+		::IDXGIFactory1,
 		::IDXGIFactory4,
 		::IDXGIAdapter,
 		::IDXGIOutput,
+		::DXGI_SWAP_CHAIN_DESC,
 		::DXGI_ADAPTER_DESC,
 		::DXGI_OUTPUT_DESC,
 		::DXGI_MODE_DESC,
-		::DXGI_FORMAT
+		::DXGI_FORMAT,
+		::DXGI_SWAP_EFFECT,
+		::DXGI_SWAP_CHAIN_FLAG
 		;
 
 	namespace Error
