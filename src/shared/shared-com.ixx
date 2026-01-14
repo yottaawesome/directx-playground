@@ -8,8 +8,6 @@ export namespace Com
 	template<typename T>
 	struct Ptr
 	{
-		static constexpr Win32::GUID Uuid = __uuidof(T);
-
 		using pointer = T*;
 
 		constexpr ~Ptr() noexcept
@@ -21,9 +19,10 @@ export namespace Com
 
 		constexpr Ptr(T* typePtr) noexcept
 			: ptr(typePtr)
-		{ }
+		{
+		}
 
-		// Copy
+		// Copyable
 		constexpr Ptr(const Ptr& typePtr) noexcept
 			: ptr(typePtr.ptr)
 		{
@@ -38,17 +37,37 @@ export namespace Com
 			return self;
 		}
 
-		// Move
+		// Movable
 		constexpr Ptr(Ptr&& other) noexcept
 			: ptr(other.ptr)
 		{
 			other.ptr = nullptr;
 		}
-		constexpr auto operator=(this Ptr& self, Ptr&& other) noexcept -> decltype(auto)
+		constexpr auto operator=(this Ptr& self, Ptr&& other) noexcept -> Ptr&
 		{
 			self.reset();
 			self.swap(other);
 			return self;
+		}
+
+		constexpr operator Win32::GUID(this const Ptr& self) noexcept
+		{
+			return self.GetUuid();
+		}
+
+		constexpr operator bool(this const Ptr& self) noexcept
+		{
+			return self.ptr != nullptr;
+		}
+
+		constexpr auto operator==(this const Ptr& self, const Ptr& other) noexcept -> bool
+		{
+			return self.ptr == other.ptr;
+		}
+
+		constexpr auto operator*(this auto&& self) noexcept -> T*
+		{
+			return self.ptr;
 		}
 
 		constexpr auto operator->(this auto&& self) noexcept -> T*
@@ -56,13 +75,7 @@ export namespace Com
 			return self.ptr;
 		}
 
-		[[nodiscard]]
-		constexpr operator Win32::GUID(this const Ptr& self) noexcept
-		{
-			return self.Uuid;
-		}
-
-		constexpr auto reset(this Ptr& self) noexcept -> decltype(auto)
+		constexpr auto reset(this Ptr& self) noexcept -> Ptr&
 		{
 			if (self.ptr)
 			{
@@ -72,7 +85,6 @@ export namespace Com
 			return self;
 		}
 
-		[[nodiscard]]
 		constexpr auto detach(this Ptr& self) noexcept -> T*
 		{
 			T* temp = self.ptr;
@@ -80,7 +92,6 @@ export namespace Com
 			return temp;
 		}
 
-		[[nodiscard]]
 		constexpr auto get(this const Ptr& self) noexcept -> T*
 		{
 			return self.ptr;
@@ -88,13 +99,26 @@ export namespace Com
 
 		constexpr auto swap(this Ptr& self, Ptr& other) noexcept -> void
 		{
-			std::swap(self.ptr, other.ptr);
+			auto temp = self.ptr;
+			self.ptr = other.ptr;
+			other.ptr = temp;
 		}
 
-		[[nodiscard]]
 		constexpr auto AddressOf(this Ptr& self) noexcept -> void**
 		{
-			return static_cast<void**>(&self.ptr);
+			return reinterpret_cast<void**>(&self.ptr);
+		}
+
+		constexpr auto GetUuid(this const Ptr& self) noexcept -> Win32::GUID
+		{
+			if consteval
+			{
+				return Win32::GUID{};
+			}
+			else
+			{
+				return __uuidof(T);
+			}
 		}
 
 		T* ptr = nullptr;

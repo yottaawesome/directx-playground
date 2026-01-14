@@ -2,7 +2,7 @@ export module miniengine;
 import std;
 import shared;
 
-export auto wWinMain(Win32::HINSTANCE instance, Win32::HINSTANCE previous, Win32::PWSTR cmd, int cmdShow) -> int
+export extern "C" auto wWinMain(Win32::HINSTANCE instance, Win32::HINSTANCE previous, Win32::PWSTR cmd, int cmdShow) -> int
 try
 {
 	return 0;

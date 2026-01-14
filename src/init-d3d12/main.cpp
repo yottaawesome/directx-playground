@@ -45,7 +45,7 @@ struct D3D12State
 	auto InitDxInfrastructure(this D3D12State& self) -> decltype(auto)
 	{
 		Com::HResult hr = DXGI::CreateDXGIFactory1(
-			self.dxgiFactory.Uuid,
+			self.dxgiFactory.GetUuid(),
 			std::out_ptr(self.dxgiFactory)
 		);
 		if (not hr)
@@ -54,7 +54,7 @@ struct D3D12State
 		hr = D3D12::D3D12CreateDevice(
 			nullptr, // use default adapter
 			D3D12::D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_12_2, // https://docs.microsoft.com/en-us/windows/desktop/api/d3dcommon/ne-d3dcommon-d3d_feature_level
-			self.d3d12Device.Uuid,
+			self.d3d12Device.GetUuid(),
 			std::out_ptr(self.d3d12Device) //Win32::IID_PPV_ARGS_Helper(&d3d12Device)
 		);
 		if (not hr)
@@ -63,7 +63,7 @@ struct D3D12State
 		hr = self.d3d12Device->CreateFence(
 			0,
 			D3D12::D3D12_FENCE_FLAGS::D3D12_FENCE_FLAG_NONE,
-			self.fence.Uuid,
+			self.fence.GetUuid(),
 			std::out_ptr(self.fence)
 		);
 		if (not hr)
@@ -88,7 +88,7 @@ struct D3D12State
 		};
 		Com::HResult hr = self.d3d12Device->CreateCommandQueue(
 			&queueDesc,
-			self.commandQueue.Uuid,
+			self.commandQueue.GetUuid(),
 			std::out_ptr(self.commandQueue)
 		);
 		if (not hr)
@@ -96,7 +96,7 @@ struct D3D12State
 
 		hr = self.d3d12Device->CreateCommandAllocator(
 			D3D12::D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT,
-			self.commandAllocator.Uuid,
+			self.commandAllocator.GetUuid(),
 			std::out_ptr(self.commandAllocator)
 		);
 		if (not hr)
@@ -107,7 +107,7 @@ struct D3D12State
 			D3D12::D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_DIRECT,
 			self.commandAllocator.get(),
 			nullptr,
-			self.commandList.Uuid,
+			self.commandList.GetUuid(),
 			std::out_ptr(self.commandList)
 		);
 		if (not hr)
