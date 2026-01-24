@@ -3,6 +3,8 @@
   "version-string": "1.0.0",
   "dependencies": [
     "directx-headers",
-    "directxmath"
+    "directxmath",
+    "directxtk12",
+    "directxtex"
   ]
 }

@@ -200,6 +200,7 @@ export namespace D3D12
 	using 
 		::D3D12CreateDevice,
 		::D3D12_COMMAND_QUEUE_DESC,
+		::D3D12_DESCRIPTOR_HEAP_DESC,
 		::D3D12_COMMAND_LIST_TYPE,
 		::D3D12_COMMAND_QUEUE_FLAGS,
 		::ID3D12CommandQueue,
@@ -209,6 +210,7 @@ export namespace D3D12
 		::ID3D12CommandList,
 		::ID3D12DescriptorHeap,
 		::D3D12_DESCRIPTOR_HEAP_TYPE,
+		::D3D12_DESCRIPTOR_HEAP_FLAGS,
 		::D3D12_FENCE_FLAGS,
 		::ID3D12Fence,
 		::ID3D12Device,

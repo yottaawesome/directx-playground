@@ -1,9 +1,10 @@
 {
-  "name": "enum-devices",
+  "name": "miniengine",
   "version-string": "1.0.0",
   "dependencies": [
     "directx-headers",
     "directxmath",
-    "directxtk12"
+    "directxtk12",
+    "directxtex"
   ]
 }

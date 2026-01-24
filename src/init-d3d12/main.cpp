@@ -3,8 +3,9 @@
 
 import shared;
 
-struct D3D12State
+class D3D12State
 {
+public:
 	constexpr D3D12State() = default;
 
 	D3D12State(UI::Window* mainWindow) 
@@ -14,7 +15,32 @@ struct D3D12State
 	}
 
 private:
+	DXGI::DXGI_FORMAT backBufferFormat = DXGI::DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
+	Com::Ptr<D3D12::ID3D12Device> d3d12Device;
+	Com::Ptr<DXGI::IDXGIFactory4> dxgiFactory;
+	Com::Ptr<D3D12::ID3D12Fence> fence;
+
+	Com::Ptr<D3D12::ID3D12CommandQueue> commandQueue;
+	Com::Ptr<D3D12::ID3D12CommandAllocator> commandAllocator;
+	Com::Ptr<D3D12::ID3D12GraphicsCommandList> commandList;
+	Com::Ptr<D3D12::ID3D12DescriptorHeap> descriptorHeap;
+	Com::Ptr<D3D12::ID3D12DescriptorHeap> dsvHeap;
+	Com::Ptr<DXGI::IDXGISwapChain> swapChain;
+
+	// render target view descriptor size
+	std::uint32_t rtvDescriptorSize = 0;
+	// depth stencil view descriptor size
+	std::uint32_t dsvDescriptorSize = 0;
+	// constant buffer view / shader resource view / unordered access view descriptor size
+	std::uint32_t cbvSrvUavDescriptorSize = 0;
+	std::uint32_t msaaQualityLevels = 0;
+	std::uint32_t SwapChainBufferCount = 2;
+	UI::Window* mainWindow = nullptr;
+
+	bool m4xMsaaState = false;
+
+private:
 	/* Steps
 	1. Create the ID3D12Device using the D3D12CreateDevice function.
 	2. Create an ID3D12Fence object and query descriptor sizes.
@@ -30,15 +56,16 @@ private:
 			.CheckMsaaQualityLevels()
 			.CreateCommandObjects()
 			.CreateSwapChain()
-			.CreateDescriptorHeaps();
+			.CreateDescriptorHeaps()
+			;
 	}
 
 	auto CheckMsaaQualityLevels(this D3D12State& self) -> decltype(auto)
 	{
-		D3D12::D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS qualityLevels{
+		auto qualityLevels = D3D12::D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS{
 			.Format = self.backBufferFormat,
 			.SampleCount = 4,
-			.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
+			.Flags = D3D12::D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS::D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
 			.NumQualityLevels = 0
 		};
 		Com::HResult hr = self.d3d12Device->CheckFeatureSupport(
@@ -89,7 +116,6 @@ private:
 		return self;
 	}
 
-	// TODO: Implement command queue, command list allocator, and command list creation
 	auto CreateCommandObjects(this D3D12State& self) -> decltype(auto)
 	{
 		D3D12::D3D12_COMMAND_QUEUE_DESC queueDesc{
@@ -165,35 +191,31 @@ private:
 		return self;
 	}
 
-	// TODO: Implement descriptor heap creation
 	auto CreateDescriptorHeaps(this D3D12State& self) -> decltype(auto)
 	{
+		auto rtvHeapDesc = D3D12::D3D12_DESCRIPTOR_HEAP_DESC{
+			.Type = D3D12::D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+			.NumDescriptors = self.SwapChainBufferCount,
+			.Flags = D3D12::D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+			.NodeMask = 0
+		};
+		
+		Com::HResult hr = self.d3d12Device->CreateDescriptorHeap(&rtvHeapDesc, self.descriptorHeap.GetUuid(), std::out_ptr(self.descriptorHeap));
+		if (not hr)
+			throw Error::ComError(hr, "Failed to create RTV Descriptor Heap");
+
+		auto dsvHeapDesc = D3D12::D3D12_DESCRIPTOR_HEAP_DESC{
+			.Type = D3D12::D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+			.NumDescriptors = 1,
+			.Flags = D3D12::D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+			.NodeMask = 0
+		};
+		hr = self.d3d12Device->CreateDescriptorHeap(&dsvHeapDesc, self.dsvHeap.GetUuid(), std::out_ptr(self.dsvHeap));
+		if (not hr)
+			throw Error::ComError(hr, "Failed to create DSV Descriptor Heap");
+
 		return self;
 	}
-
-	DXGI::DXGI_FORMAT backBufferFormat = DXGI::DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-
-	Com::Ptr<D3D12::ID3D12Device> d3d12Device;
-	Com::Ptr<DXGI::IDXGIFactory4> dxgiFactory;
-	Com::Ptr<D3D12::ID3D12Fence> fence;
-
-	Com::Ptr<D3D12::ID3D12CommandQueue> commandQueue;
-	Com::Ptr<D3D12::ID3D12CommandAllocator> commandAllocator;
-	Com::Ptr<D3D12::ID3D12GraphicsCommandList> commandList;
-	Com::Ptr<D3D12::ID3D12DescriptorHeap> descriptorHeap;
-	Com::Ptr<DXGI::IDXGISwapChain> swapChain;
-
-	// render target view descriptor size
-	std::uint32_t rtvDescriptorSize = 0;
-	// depth stencil view descriptor size
-	std::uint32_t dsvDescriptorSize = 0;
-	// constant buffer view / shader resource view / unordered access view descriptor size
-	std::uint32_t cbvSrvUavDescriptorSize = 0;
-	std::uint32_t msaaQualityLevels = 0;
-	std::uint32_t SwapChainBufferCount = 2;
-	UI::Window* mainWindow = nullptr;
-
-	bool m4xMsaaState = false;
 };
 
 struct InitD3D12App : Shared::D3D12App
