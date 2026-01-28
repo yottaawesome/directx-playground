@@ -220,6 +220,7 @@ private:
 
 struct InitD3D12App : Shared::D3D12App
 {
+	InitD3D12App() { Initialise(); }
 	void Initialise(this InitD3D12App& self)
 	{
 		self.window = UI::Window{800, 600};
