@@ -1,6 +1,7 @@
 export module shared:window;
 import std;
 import :win32;
+import :error;
 
 export namespace Raii
 {
@@ -75,7 +76,10 @@ export namespace UI
 			classEx.lpfnWndProc = WindowProc<std::remove_cvref_t<decltype(self)>>;
 			Win32::ATOM atom = Win32::RegisterClassExW(&classEx);
 			if (atom == 0)
-				throw std::runtime_error("Failed to register window class");
+			{
+				auto lastError = Win32::GetLastError();
+				throw Error::Win32Error{ lastError, "Failed to register window class" };
+			}
 		}
 
 		auto GetClass(this const Window& self) -> Win32::WNDCLASSEXW
