@@ -166,7 +166,7 @@ export namespace Shared
 		auto CreateSwapChain(this D3D12State& self) -> decltype(auto)
 		{
 			self.swapChain.reset();
-			DXGI::DXGI_SWAP_CHAIN_DESC swapChainDesc{
+			auto swapChainDesc = DXGI::DXGI_SWAP_CHAIN_DESC{
 				.BufferDesc{
 					.Width = self.mainWindow->GetDimensions().Width,
 					.Height = self.mainWindow->GetDimensions().Height,
@@ -175,8 +175,8 @@ export namespace Shared
 						.Denominator = 1,
 					},
 					.Format = self.backBufferFormat,
-					.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
-					.Scaling = DXGI_MODE_SCALING_UNSPECIFIED
+					.ScanlineOrdering = DXGI::DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+					.Scaling = DXGI::DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED
 				},
 				.SampleDesc{
 					.Count = self.m4xMsaaState ? 4u : 1u,
@@ -189,11 +189,12 @@ export namespace Shared
 				.SwapEffect = DXGI::DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_DISCARD,
 				.Flags = DXGI::DXGI_SWAP_CHAIN_FLAG::DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
 			};
-			Com::HResult hr = self.dxgiFactory->CreateSwapChain(
-				self.commandQueue.get(),
-				&swapChainDesc,
-				std::out_ptr(self.swapChain)
-			);
+			auto hr = Com::HResult{ 
+				self.dxgiFactory->CreateSwapChain(
+					self.commandQueue.get(),
+					&swapChainDesc,
+					std::out_ptr(self.swapChain)) 
+			};
 			if (not hr)
 				throw Error::ComError(hr, "Failed to create DXGI Swap Chain");
 
@@ -209,7 +210,9 @@ export namespace Shared
 				.NodeMask = 0
 			};
 
-			Com::HResult hr = self.d3d12Device->CreateDescriptorHeap(&rtvHeapDesc, self.descriptorHeap.GetUuid(), std::out_ptr(self.descriptorHeap));
+			auto hr = Com::HResult{
+				self.d3d12Device->CreateDescriptorHeap(&rtvHeapDesc, self.descriptorHeap.GetUuid(), std::out_ptr(self.descriptorHeap)) 
+			};
 			if (not hr)
 				throw Error::ComError(hr, "Failed to create RTV Descriptor Heap");
 
