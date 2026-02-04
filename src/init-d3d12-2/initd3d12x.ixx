@@ -374,7 +374,5 @@ export namespace Test
 export extern "C++" auto wWinMain(Win32::HINSTANCE, Win32::HINSTANCE, Win32::LPWSTR, int) -> int
 {
 	Test::D3D12xApp app;
-	X x;
-	x.Something();
 	return app.MainLoop();
 }
