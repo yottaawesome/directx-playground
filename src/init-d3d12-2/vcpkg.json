@@ -1,0 +1,10 @@
+{
+  "name": "initd3d12-2",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "directx-headers",
+    "directxmath",
+    "directxtk12",
+    "directxtex"
+  ]
+}
