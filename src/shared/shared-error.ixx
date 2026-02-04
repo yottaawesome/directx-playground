@@ -7,21 +7,29 @@ export namespace Error
 	auto TranslateErrorCode(Win32::DWORD errorCode) -> std::string
 	{
 		if (errorCode == 0)
-			return {}; // No error
-		Win32::LPSTR messageBuffer = nullptr;
-		size_t size = Win32::FormatMessageA(
-			Win32::FormatMessageOptions::AllocateBuffer | Win32::FormatMessageOptions::FromSystem | Win32::FormatMessageOptions::IgnoreInserts,
-			nullptr,
-			errorCode,
-			0,
-			reinterpret_cast<LPSTR>(&messageBuffer),
-			0,
-			nullptr
-		);
+			return {};
+
+		constexpr auto options = Win32::FormatMessageOptions::AllocateBuffer 
+			| Win32::FormatMessageOptions::FromSystem 
+			| Win32::FormatMessageOptions::IgnoreInserts;
+
+		auto messageBuffer = static_cast<char*>(nullptr);
+		auto size = size_t{
+			Win32::FormatMessageA(
+				options,
+				nullptr,
+				errorCode,
+				0,
+				reinterpret_cast<char*>(&messageBuffer),
+				0,
+				nullptr
+			)};
 		if (size == 0)
 			return std::format("Unknown error code: {}", errorCode);
-		std::string message(messageBuffer, size);
+
+		auto message = std::string{ messageBuffer, size };
 		Win32::LocalFree(messageBuffer);
+
 		return message;
 	}
 
@@ -33,8 +41,7 @@ export namespace Error
 			const std::source_location& loc = std::source_location::current(),
 			const std::stacktrace& trace = std::stacktrace::current()
 		) : std::runtime_error(Format(message, loc, trace))
-		{
-		}
+		{ }
 
 		static auto Format(
 			std::string_view message,
@@ -54,8 +61,9 @@ export namespace Error
 		}
 	};
 
-	struct Win32Error : std::runtime_error
+	class Win32Error : std::runtime_error
 	{
+	public:
 		explicit Win32Error(
 			Win32::DWORD errorCode,
 			std::string_view message, 
@@ -93,8 +101,9 @@ export namespace Error
 		}
 	};
 
-	struct ComError : std::runtime_error
+	class ComError : std::runtime_error
 	{
+	public:
 		ComError(
 			Win32::HRESULT hr,
 			std::string_view msg,

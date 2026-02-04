@@ -38,6 +38,7 @@ export namespace Win32
 
 	using
 		::HINSTANCE,
+		::HANDLE,
 		::HWND,
 		::LPWSTR,
 		::ATOM,
@@ -57,6 +58,9 @@ export namespace Win32
 		::GUID,
 		::HRESULT,
 		::PWSTR,
+		::CreateEventExW,
+		::WaitForSingleObject,
+		::CloseHandle,
 		::FormatMessageA,
 		::LocalFree,
 		::PostQuitMessage,
@@ -88,6 +92,8 @@ export namespace Win32
 			Close = WM_CLOSE,
 			Destroy = WM_DESTROY,
 			Size = WM_SIZE,
+			EnterSizeMove = WM_ENTERSIZEMOVE,
+			ExitSizeMove = WM_EXITSIZEMOVE,
 			LeftButtonDown = WM_LBUTTONDOWN,
 			LeftButtonUp = WM_LBUTTONUP,
 			NonClientCreate = WM_NCCREATE,
@@ -124,6 +130,17 @@ export namespace Win32
 	constexpr auto CwUseDefault = CW_USEDEFAULT;
 	constexpr auto SpiGetNonClientMetrics = SPI_GETNONCLIENTMETRICS;
 	constexpr auto DefaultCharset = DEFAULT_CHARSET;
+	constexpr auto Infinite = INFINITE;
+
+	namespace EventAccess
+	{
+		enum
+		{
+			ModifyState = EVENT_MODIFY_STATE,
+			All = EVENT_ALL_ACCESS,
+			Sync = SYNCHRONIZE
+		};
+	}
 
 	constexpr Win32Constant<IDI_APPLICATION> IdiApplication;
 	constexpr Win32Constant<IDC_ARROW> IdcArrow;
@@ -205,6 +222,8 @@ export namespace D3D12
 		::D3D12_DESCRIPTOR_HEAP_DESC,
 		::D3D12_COMMAND_LIST_TYPE,
 		::D3D12_COMMAND_QUEUE_FLAGS,
+		::D3D12_CPU_DESCRIPTOR_HANDLE,
+		::D3D12_GPU_DESCRIPTOR_HANDLE,
 		::ID3D12CommandQueue,
 		::ID3D12CommandAllocator,
 		::ID3D12GraphicsCommandList,

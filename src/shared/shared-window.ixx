@@ -42,6 +42,18 @@ export namespace UI
 
 	struct Window
 	{
+		// Add more message types as needed
+		static constexpr std::array HandledMessages{
+			Win32::Messages::Destroy,
+			Win32::Messages::Paint,
+			Win32::Messages::KeyUp,
+			Win32::Messages::Command,
+			Win32::Messages::NonClientDestroy,
+			Win32::Messages::Size,
+			Win32::Messages::EnterSizeMove,
+			Win32::Messages::ExitSizeMove
+		};
+
 		constexpr Window() = default;
 
 		Window(const Window&) = delete;
@@ -115,14 +127,6 @@ export namespace UI
 
 			Win32::ShowWindow(self.window.get(), Win32::ShowWindowOptions::ShowNormal);
 		}
-
-		static constexpr std::array HandledMessages{
-			Win32::Messages::Destroy,
-			Win32::Messages::Paint,
-			Win32::Messages::KeyUp,
-			Win32::Messages::Command,
-			Win32::Messages::NonClientDestroy
-		};
 
 		auto GetHandle(this auto&& self) -> Win32::HWND
 		{
@@ -204,7 +208,7 @@ export namespace UI
 			Win32::LPARAM lParam
 		) -> Win32::LRESULT
 		{
-			return[&self, hwnd, msgType, wParam, lParam]<size_t...Is>(std::index_sequence<Is...>)
+			return [=, &self]<size_t...Is>(std::index_sequence<Is...>)
 			{
 				Win32::LRESULT result;
 				bool handled = (... or
@@ -225,6 +229,16 @@ export namespace UI
 		auto GetDimensions(this const Window& self) noexcept -> Dimensions
 		{
 			return Dimensions{ self.width, self.height };
+		}
+
+		auto GetHeight(this const Window& self) noexcept -> unsigned
+		{
+			return self.height;
+		}
+
+		auto GetWidth(this const Window& self) noexcept -> unsigned
+		{
+			return self.width;
 		}
 
 	private:

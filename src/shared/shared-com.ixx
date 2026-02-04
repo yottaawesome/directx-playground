@@ -92,6 +92,11 @@ export namespace Com
 			return temp;
 		}
 
+		constexpr auto Get(this const Ptr& self) noexcept -> T*
+		{
+			return self.ptr;
+		}
+
 		constexpr auto get(this const Ptr& self) noexcept -> T*
 		{
 			return self.ptr;
@@ -168,4 +173,10 @@ export namespace Com
 
 		Win32::HRESULT Hr = 0x0;
 	};
+
+	inline void CheckHr(const Win32::HRESULT hr, const std::source_location& loc = std::source_location::current())
+	{	
+		if (Win32::HrFailed(hr))
+			throw Error::ComError(hr, "Expected success HRESULT", loc);
+	}
 }
