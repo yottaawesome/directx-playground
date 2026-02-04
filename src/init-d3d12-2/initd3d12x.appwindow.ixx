@@ -8,7 +8,6 @@ export namespace Test
 	concept Handles = requires(T t, M m)
 	{
 		{ t.OnMessage(m) } -> std::convertible_to<Win32::LRESULT>;
-		t.Poo;
 	};
 
 	template<typename T>
@@ -134,9 +133,21 @@ export namespace Test
 				? pThis->HandleMessage(hwnd, uMsg, wParam, lParam)
 				: Win32::DefWindowProcW(hwnd, uMsg, wParam, lParam);
 		}
+		
+		constexpr auto Dispatch(this auto& self, unsigned msgType, auto msg) -> std::pair<bool, Win32::LRESULT>
+			requires Handles<TMainApp, decltype(msg)>
+		{
+			return msg.uMsg == msgType ? std::pair{ true, self.mainApp->OnMessage(msg) } : std::pair{ false, Win32::LRESULT{} };
+		}
+
+		constexpr auto Dispatch(this auto& self, unsigned msgType, auto msg) -> std::pair<bool, Win32::LRESULT>
+			requires (not Handles<TMainApp, decltype(msg)>)
+		{
+			return { false, 0 };
+		}
 
 		auto HandleMessage(
-			this AppWindow& self,
+			this auto& self,
 			Win32::HWND hwnd,
 			unsigned msgType,
 			Win32::WPARAM wParam,
@@ -145,18 +156,25 @@ export namespace Test
 		{
 			return[=, &self]<size_t...Is>(std::index_sequence<Is...>)
 			{
-				Win32::LRESULT result;
-				bool handled = (... or
-					[=, &self, &result]<typename TMsg = Shared::Win32Message<Shared::HandledMessages[Is]>>
+				auto result = std::pair<bool, Win32::LRESULT>{};
+				(... or [=, &self, &result]<typename TMsg = Shared::Win32Message<Shared::HandledMessages[Is]>>
+				{
+					if constexpr (Handles<TMainApp, TMsg>)
 					{
-						// COMPILER BUG: evaluates to true even when the mainApp doesn't implement OnMessage for TMsg
-						constexpr auto test = Handles<TMainApp, TMsg>;
-						if constexpr (Handles<TMainApp, TMsg>)
-							return TMsg::uMsg == msgType ? (result = self.mainApp->OnMessage(TMsg{ hwnd, wParam, lParam }), true) : false;
-						return false;
-					}());
-				if (handled)
-					return result;
+						// The original code used to dispatch OnMessage to this type, and the below works for that
+						// but does not work if we're dispatching to a different type (TMainApp), as it appears
+						// the compiler expects OnMessage to exist on TMainApp. We work around this by using the
+						// Dispatch() helper, which uses requires to conditionally invoke OnMessage only if it 
+						// exists on TMainApp for the given message type. Note that using an inline constexpr 
+						// requires check didn't help, as the compiler still expected OnMessage for some reason.
+						//return TMsg::uMsg == msgType ? (result.second = self.mainApp->OnMessage(TMsg{ hwnd, wParam, lParam }), true) : false;
+						result = self.Dispatch(msgType, TMsg{ hwnd, wParam, lParam });
+						return result.first;
+					}
+					return false;
+				}());
+				if (result.first)
+					return result.second;
 				return msgType == Win32::Messages::Destroy
 					? (Win32::PostQuitMessage(0), 0)
 					: Win32::DefWindowProcW(hwnd, msgType, wParam, lParam);

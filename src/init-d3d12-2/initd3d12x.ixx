@@ -332,7 +332,7 @@ export namespace Test
 			d3d12State.Initialise();
 		}
 
-		auto OnMessage(this auto& self, Shared::Win32Message<Win32::Messages::Size> msg) -> Win32::LRESULT
+		auto OnMessage(this const D3D12xApp& self, Shared::Win32Message<Win32::Messages::Size> msg) -> Win32::LRESULT
 		{
 			return 0;
 		}
@@ -374,5 +374,7 @@ export namespace Test
 export extern "C++" auto wWinMain(Win32::HINSTANCE, Win32::HINSTANCE, Win32::LPWSTR, int) -> int
 {
 	Test::D3D12xApp app;
+	X x;
+	x.Something();
 	return app.MainLoop();
 }
