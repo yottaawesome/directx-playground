@@ -61,7 +61,7 @@ export namespace Error
 		}
 	};
 
-	class Win32Error : std::runtime_error
+	class Win32Error : public std::runtime_error
 	{
 	public:
 		explicit Win32Error(
@@ -101,7 +101,7 @@ export namespace Error
 		}
 	};
 
-	class ComError : std::runtime_error
+	class ComError : public std::runtime_error
 	{
 	public:
 		ComError(

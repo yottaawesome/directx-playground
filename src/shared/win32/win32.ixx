@@ -38,6 +38,7 @@ export namespace Win32
 
 	using
 		::HINSTANCE,
+		::LONG,
 		::HANDLE,
 		::HWND,
 		::LPWSTR,

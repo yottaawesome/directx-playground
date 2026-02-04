@@ -144,14 +144,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="shared-com.ixx" />
-    <ClCompile Include="shared-d3d12app.ixx" />
-    <ClCompile Include="shared-error.ixx" />
-    <ClCompile Include="shared-log.ixx" />
-    <ClCompile Include="shared-strings.ixx" />
-    <ClCompile Include="shared-util.ixx" />
-    <ClCompile Include="shared-win32.ixx" />
-    <ClCompile Include="shared-window.ixx" />
+    <ClCompile Include="app\app.ixx" />
+    <ClCompile Include="com\com.ixx" />
+    <ClCompile Include="app\app.d3d12app.ixx" />
+    <ClCompile Include="error\error.ixx" />
+    <ClCompile Include="log\log.ixx" />
+    <ClCompile Include="strings\strings.ixx" />
+    <ClCompile Include="util\util.ixx" />
+    <ClCompile Include="win32\win32.ixx" />
+    <ClCompile Include="app\app.windowedapp.ixx" />
     <ClCompile Include="shared.ixx" />
   </ItemGroup>
   <ItemGroup>

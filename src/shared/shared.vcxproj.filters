@@ -18,28 +18,31 @@
     <ClCompile Include="shared.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-win32.ixx">
+    <ClCompile Include="win32\win32.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-window.ixx">
+    <ClCompile Include="app\app.windowedapp.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-d3d12app.ixx">
+    <ClCompile Include="app\app.d3d12app.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-error.ixx">
+    <ClCompile Include="error\error.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-com.ixx">
+    <ClCompile Include="com\com.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-strings.ixx">
+    <ClCompile Include="strings\strings.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-log.ixx">
+    <ClCompile Include="log\log.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shared-util.ixx">
+    <ClCompile Include="util\util.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="app\app.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

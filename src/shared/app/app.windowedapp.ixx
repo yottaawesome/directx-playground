@@ -1,4 +1,4 @@
-export module shared:window;
+export module shared:app.windowedapp;
 import std;
 import :win32;
 import :error;
@@ -15,7 +15,7 @@ export namespace Raii
 	};
 }
 
-export namespace UI
+export namespace Shared
 {
 	struct Dimensions
 	{
@@ -40,43 +40,45 @@ export namespace UI
 		{ t.OnMessage(m) } -> std::convertible_to<Win32::LRESULT>;
 	};
 
-	struct Window
+	// Add more message types as needed
+	constexpr std::array HandledMessages{
+		Win32::Messages::Destroy,
+		Win32::Messages::Paint,
+		Win32::Messages::KeyUp,
+		Win32::Messages::Command,
+		Win32::Messages::NonClientDestroy,
+		Win32::Messages::Size,
+		Win32::Messages::EnterSizeMove,
+		Win32::Messages::ExitSizeMove
+	};
+
+	struct WindowedApp
 	{
-		// Add more message types as needed
-		static constexpr std::array HandledMessages{
-			Win32::Messages::Destroy,
-			Win32::Messages::Paint,
-			Win32::Messages::KeyUp,
-			Win32::Messages::Command,
-			Win32::Messages::NonClientDestroy,
-			Win32::Messages::Size,
-			Win32::Messages::EnterSizeMove,
-			Win32::Messages::ExitSizeMove
-		};
+		virtual ~WindowedApp() = default;
+		WindowedApp(const WindowedApp&) = delete;
+		WindowedApp& operator=(const WindowedApp&) = delete;
 
-		constexpr Window() = default;
-
-		Window(const Window&) = delete;
-		Window& operator=(const Window&) = delete;
-
-		Window(Window&& other) 
+		WindowedApp(WindowedApp&& other) 
 		{
 			Move(other);
 		};
-		auto operator=(this auto&& self, Window&& other) -> decltype(auto)
+		auto operator=(this auto&& self, WindowedApp&& other) -> decltype(auto)
 		{
 			self.Move(other);
 			return decltype(self)(self);
 		};
 
-		constexpr Window(unsigned width, unsigned height)
+		constexpr WindowedApp(unsigned width, unsigned height)
 			: width(width), height(height)
 		{
-			if consteval { }
-			else { Initialise(); }
+			// Warning: if you initialise here, the correct explicit object type
+			// won't be used, meaning OnMessage() will fail to be invoked in
+			// subclasses that define OnMessage().
+			//if consteval { }
+			//else { Initialise(); }
 		}
 
-		auto Initialise(this auto& self) -> void
+		auto InitialiseWindow(this auto& self) -> void
 		{
 			self.RegisterClass();
 			self.CreateWindow(800, 600);
@@ -94,7 +96,7 @@ export namespace UI
 			}
 		}
 
-		auto GetClass(this const Window& self) -> Win32::WNDCLASSEXW
+		auto GetClass(this const auto& self) -> Win32::WNDCLASSEXW
 		{
 			return Win32::WNDCLASSEXW{
 				.cbSize = sizeof(Win32::WNDCLASSEXW),
@@ -106,7 +108,7 @@ export namespace UI
 			};
 		}
 
-		void CreateWindow(this Window& self, int width, int height)
+		void CreateWindow(this auto& self, int width, int height)
 		{
 			HWND hwnd = Win32::CreateWindowExW(
 				0,
@@ -133,12 +135,7 @@ export namespace UI
 			return self.window.get();
 		}
 
-		auto OnMessage(this auto&& self, Win32Message<Win32::Messages::Paint> message) -> Win32::LRESULT
-		{
-			return Win32::DefWindowProcW(message.hwnd, message.uMsg, message.wParam, message.lParam);
-		}
-
-		void Move(this auto&& self, Window& other)
+		void Move(this auto&& self, WindowedApp& other)
 		{
 			if (&self == &other)
 				return;
@@ -197,6 +194,9 @@ export namespace UI
 				: Win32::DefWindowProcW(hwnd, uMsg, wParam, lParam);
 		}
 
+		// Any OnMessage() calls here won't be invoked unless the subclass pulls them 
+		// into scope with using Shared::WindowedApp::OnMessage().
+
 		//
 		// Called by WindowProc, which then dispatches the message to either the generic handler
 		// or specific handlers by subclasses.
@@ -212,9 +212,9 @@ export namespace UI
 			{
 				Win32::LRESULT result;
 				bool handled = (... or
-					[=, &self, &result]<typename TMsg = Win32Message<HandledMessages[Is]>>()
+					[=, &self, &result]<typename TMsg = Win32Message<HandledMessages[Is]>>
 					{
-						if constexpr (Handles<decltype(self), TMsg>)
+						if constexpr (Handles<std::remove_cvref_t<decltype(self)>, TMsg>)
 							return TMsg::uMsg == msgType ? (result = self.OnMessage(TMsg{ hwnd, wParam, lParam }), true) : false;
 						return false;
 					}());
@@ -226,17 +226,17 @@ export namespace UI
 			}(std::make_index_sequence<HandledMessages.size()>());
 		}
 
-		auto GetDimensions(this const Window& self) noexcept -> Dimensions
+		auto GetDimensions(this const auto& self) noexcept -> Dimensions
 		{
 			return Dimensions{ self.width, self.height };
 		}
 
-		auto GetHeight(this const Window& self) noexcept -> unsigned
+		auto GetHeight(this const auto& self) noexcept -> unsigned
 		{
 			return self.height;
 		}
 
-		auto GetWidth(this const Window& self) noexcept -> unsigned
+		auto GetWidth(this const auto& self) noexcept -> unsigned
 		{
 			return self.width;
 		}
