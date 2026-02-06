@@ -59,13 +59,19 @@ export namespace Win32
 		::GUID,
 		::HRESULT,
 		::PWSTR,
+		::RECT,
+		::GetClientRect,
+		::UnregisterClassW,
 		::CreateEventExW,
 		::WaitForSingleObject,
 		::CloseHandle,
+		::ResetEvent,
+		::SetEvent,
 		::FormatMessageA,
 		::LocalFree,
 		::PostQuitMessage,
 		::PeekMessageW,
+		::CreateEventW,
 		::GetMessageW,
 		::TranslateMessage,
 		::DispatchMessageW,
@@ -113,6 +119,17 @@ export namespace Win32
 			MouseMove = WM_MOUSEMOVE,
 			EraseBackground = WM_ERASEBKGND,
 			NonClientDestroy = WM_NCDESTROY
+		};
+	}
+
+	namespace WaitResult
+	{
+		enum
+		{
+			Abandoned = WAIT_ABANDONED,
+			Signaled = WAIT_OBJECT_0,
+			Timeout = WAIT_TIMEOUT,
+			Failed = WAIT_FAILED
 		};
 	}
 
@@ -211,6 +228,16 @@ export namespace Win32
 	constexpr auto HrSuccess(HRESULT hr) noexcept -> bool
 	{
 		return SUCCEEDED(hr);
+	}
+
+	constexpr auto LoWord(auto dw) noexcept -> WORD
+	{
+		return LOWORD(dw);
+	}
+
+	constexpr auto HiWord(auto dw) noexcept -> WORD
+	{
+		return HIWORD(dw);
 	}
 }
 

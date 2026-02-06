@@ -18,7 +18,25 @@
     <ClCompile Include="initd3d12x.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="initd3d12x.appwindow.ixx">
+    <ClCompile Include="Common\common.appwindow.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Approach1\approach1.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Approach2\approach2.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Approach1\approach1.d3d12context.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Approach1\approach1.d3d12xapp.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\common.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Approach2\approach2.d3d12xapp.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

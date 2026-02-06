@@ -1,8 +1,8 @@
-export module initd3d12x:appwindow;
+export module initd3d12x:common.appwindow;
 import std;
 import shared;
 
-export namespace Test
+export namespace Common
 {
 	template<typename T, typename M>
 	concept Handles = requires(T t, M m)
@@ -19,25 +19,59 @@ export namespace Test
 	public:
 		using TAppType = TMainApp;
 
-		AppWindow(TMainApp* mainApp, unsigned width, unsigned height)
-			: mainApp(mainApp), width(width), height(height)
+		~AppWindow()
 		{
+			if (window)
+			{
+				window.reset();
+				Win32::UnregisterClassW(GetWindowClass().data(), Win32::GetModuleHandleW(nullptr));
+			}
 		}
 
-		auto Initialise(this AppWindow& self) -> void
+		AppWindow(TMainApp* mainApp, std::uint32_t width, std::uint32_t height)
+			: mainApp(mainApp), width(width), height(height)
+		{ }
+
+		AppWindow(const AppWindow&) = delete;
+		AppWindow& operator=(const AppWindow&) = delete;
+
+		AppWindow(AppWindow&& other) { Move(other); };
+		auto operator=(this AppWindow& self, AppWindow&& other) -> AppWindow& 
+		{ 
+			self.Move(other); 
+			return self; 
+		};
+
+		void Initialise(this AppWindow& self)
 		{
 			self.RegisterClass();
-			self.CreateWindow(800, 600);
+			try
+			{
+				self.CreateWindow(self.width, self.height);
+			}
+			catch(...)
+			{
+				Win32::UnregisterClassW(self.GetWindowClass().data(), Win32::GetModuleHandleW(nullptr));
+				throw;
+			}
 		}
 
-		auto GetHeight(this const AppWindow& self) noexcept -> unsigned
+		auto GetHeight(this const AppWindow& self) noexcept -> std::uint32_t
 		{
-			return self.height;
+			if (not self.window)
+				return self.height;
+			auto clientRect = Win32::RECT{};
+			Win32::GetClientRect(self.window.get(), &clientRect);
+			return clientRect.bottom - clientRect.top;
 		}
 
-		auto GetWidth(this const AppWindow& self) noexcept -> unsigned
+		auto GetWidth(this const AppWindow& self) noexcept -> std::uint32_t
 		{
-			return self.width;
+			if (not self.window)
+				return self.width;
+			auto clientRect = Win32::RECT{};
+			Win32::GetClientRect(self.window.get(), &clientRect);
+			return clientRect.right - clientRect.left;
 		}
 
 		auto GetHandle(this AppWindow& self) -> Win32::HWND
@@ -45,19 +79,53 @@ export namespace Test
 			return self.window.get();
 		}
 
+		constexpr auto GetWindowTitle(this const auto&) noexcept -> std::wstring_view
+		{
+			return L"D3D12 Window";
+		}
+
+		constexpr auto GetWindowClass(this const auto&) noexcept -> std::wstring_view
+		{
+			return L"Main D3D12 Window Class";
+		}
+
 	private:
 		TMainApp* mainApp = nullptr;
 		Shared::HwndUniquePtr window;
-		unsigned width = 0;
-		unsigned height = 0;
+		std::uint32_t width = 0;
+		std::uint32_t height = 0;
 
 	private:
+		void Move(this AppWindow& self, AppWindow& other)
+		{
+			if (&self == &other)
+				return;
+
+			self.window = std::move(other.window);
+			self.width = other.width;
+			self.height = other.height;
+			self.mainApp = other.mainApp;
+
+			other.mainApp = nullptr;
+			other.width = 0;
+			other.height = 0;
+
+			if (self.window)
+			{
+				Win32::SetWindowLongPtrW(
+					self.window.get(),
+					Win32::Gwlp_UserData,
+					reinterpret_cast<Win32::LONG_PTR>(&self)
+				);
+			}
+		}
+
 		void CreateWindow(this AppWindow& self, int width, int height)
 		{
-			HWND hwnd = Win32::CreateWindowExW(
+			Win32::CreateWindowExW(
 				0,
-				L"Main D3D12 Window Class",
-				L"D3D12 Window",
+				self.GetWindowClass().data(),
+				self.GetWindowTitle().data(),
 				Win32::WindowStyles::WsOverlappedWindow | Win32::WindowStyles::WsVisible,
 				Win32::CwUseDefault,
 				Win32::CwUseDefault,
@@ -69,20 +137,17 @@ export namespace Test
 				reinterpret_cast<Win32::LPVOID>(&self) // pass 'this' pointer for use in WM_NCCREATE
 			);
 			if (not self.window)
-				throw std::runtime_error("Failed to create window");
+				throw Error::Win32Error{ Win32::GetLastError(), "Failed to create window" };
 
 			Win32::ShowWindow(self.window.get(), Win32::ShowWindowOptions::ShowNormal);
 		}
 
-		void RegisterClass(this AppWindow& self)
+		void RegisterClass(this auto& self)
 		{
 			auto classEx = Win32::WNDCLASSEXW{ self.GetClass() };
 			classEx.lpfnWndProc = WindowProc<AppWindow<TMainApp>>;
 			if (not Win32::RegisterClassExW(&classEx))
-			{
-				auto lastError = Win32::GetLastError();
-				throw Error::Win32Error{ lastError, "Failed to register window class" };
-			}
+				throw Error::Win32Error{ Win32::GetLastError(), "Failed to register window class, please ensure it's not already registered by another window." };
 		}
 
 		auto GetClass(this const AppWindow& self) -> Win32::WNDCLASSEXW
@@ -93,7 +158,7 @@ export namespace Test
 				.hIcon = Win32::LoadIconW(nullptr, Win32::IdiApplication),
 				.hCursor = Win32::LoadCursorW(nullptr, Win32::IdcArrow),
 				.hbrBackground = static_cast<Win32::HBRUSH>(Win32::GetStockObject(Win32::Brushes::White)),
-				.lpszClassName = L"Main D3D12 Window Class",
+				.lpszClassName = self.GetWindowClass().data(),
 			};
 		}
 
@@ -118,14 +183,11 @@ export namespace Test
 				// Detach before the OS destroys the HWND to avoid double-destroy later.
 				// Caught by AI, more information here https://learn.microsoft.com/en-us/cpp/mfc/tn017-destroying-window-objects?view=msvc-170
 				// under the "Auto cleanup with CWnd::PostNcDestroy" header.
-				if (pThis and uMsg == Win32::Messages::NonClientDestroy)
+				if (pThis and uMsg == Win32::Messages::NonClientDestroy and pThis->window.get() == hwnd)
 				{
 					// Only release if the message is for the currently managed window
-					if (pThis->window.get() == hwnd)
-					{
-						Win32::SetWindowLongPtrW(hwnd, Win32::Gwlp_UserData, 0);
-						pThis->window.release();
-					}
+					Win32::SetWindowLongPtrW(hwnd, Win32::Gwlp_UserData, 0);
+					pThis->window.release();
 				}
 			}
 

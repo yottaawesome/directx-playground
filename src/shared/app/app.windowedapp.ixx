@@ -2,18 +2,7 @@ export module shared:app.windowedapp;
 import std;
 import :win32;
 import :error;
-
-export namespace Raii
-{
-	template<auto VDeleteFn>
-	struct Deleter
-	{
-		static constexpr void operator()(auto ptr)
-		{
-			VDeleteFn(ptr);
-		}
-	};
-}
+import :raii;
 
 export namespace Shared
 {

@@ -45,6 +45,15 @@
     <ClCompile Include="app\app.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="async\async.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="raii\raii.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="concepts\concepts.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

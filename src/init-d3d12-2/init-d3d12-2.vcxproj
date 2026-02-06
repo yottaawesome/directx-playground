@@ -130,8 +130,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Approach1\approach1.d3d12context.ixx" />
+    <ClCompile Include="Approach1\approach1.d3d12xapp.ixx" />
+    <ClCompile Include="Approach2\approach2.d3d12xapp.ixx" />
+    <ClCompile Include="Approach2\approach2.ixx" />
+    <ClCompile Include="Approach1\approach1.ixx" />
+    <ClCompile Include="Common\common.ixx" />
     <ClCompile Include="initd3d12x.ixx" />
-    <ClCompile Include="initd3d12x.appwindow.ixx" />
+    <ClCompile Include="Common\common.appwindow.ixx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\shared\shared.vcxproj">
