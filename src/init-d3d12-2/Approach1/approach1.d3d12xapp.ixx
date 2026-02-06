@@ -7,10 +7,10 @@ import :approach1.d3d12context;
 // holds an instance of it.
 export namespace Approach1
 {
-	class D3D12xApp
+	class D3d12xApp
 	{
 	public:
-		D3D12xApp()
+		D3d12xApp()
 		{
 			appWindow.SetCallback(
 				[this](const App::Win32Message<Win32::Messages::Size>& msg)
@@ -23,10 +23,10 @@ export namespace Approach1
 		}
 
 		// Prevent moving to avoid dangling 'this' pointer inside appWindow
-		D3D12xApp(D3D12xApp&&) = delete;
-		D3D12xApp& operator=(D3D12xApp&&) = delete;
+		D3d12xApp(D3d12xApp&&) = delete;
+		D3d12xApp& operator=(D3d12xApp&&) = delete;
 
-		auto OnMessage(this D3D12xApp& self, const App::Win32Message<Win32::Messages::Size>& msg) -> Win32::LRESULT
+		auto OnMessage(this D3d12xApp& self, const App::Win32Message<Win32::Messages::Size>& msg) -> Win32::LRESULT
 		{
 			// SIZE_MINIMIZED = 1. If minimized, dimensions are usually 0, and we shouldn't resize buffers.
 			if (not self.d3d12State or msg.wParam == 1)
@@ -49,7 +49,7 @@ export namespace Approach1
 			auto msg = Win32::MSG{};
 			while (msg.message != Win32::Messages::Quit)
 			{
-				if (Win32::PeekMessageW(&msg, self.appWindow.GetHandle(), 0, 0, Win32::PeekMessageOptions::Remove))
+				if (Win32::PeekMessageW(&msg, nullptr, 0, 0, Win32::PeekMessageOptions::Remove))
 				{
 					Win32::TranslateMessage(&msg);
 					Win32::DispatchMessageW(&msg);

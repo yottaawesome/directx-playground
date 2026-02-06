@@ -58,6 +58,9 @@ export namespace App
 
 		constexpr void SetCallback(this auto& self, auto&& newCallback)
 		{
+			// At first blush, this would appear to not work, but I tested 
+			// this on both Clang 21.1 and GCC 15.2 on Godbolt, and they
+			// accepted this code.
 			static_assert(
 				[&newCallback]<typename...TArgs>(std::tuple<TArgs...>& allCallbacks) constexpr
 				{
