@@ -29,6 +29,11 @@ export namespace Approach1
 	class D3d12Context
 	{
 	public:
+		~D3d12Context()
+		{
+			FlushCommandQueue();
+		}
+
 		D3d12Context(WindowView window)
 			: window(window)
 		{ }

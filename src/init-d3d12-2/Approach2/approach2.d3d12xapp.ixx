@@ -19,7 +19,7 @@ export namespace Approach2
 			InitialiseD3D12();
 		}
 
-		auto OnMessage(this const D3D12xApp& self, Shared::Win32Message<Win32::Messages::Size> msg) -> Win32::LRESULT
+		auto OnMessage(this const D3D12xApp& self, App::Win32Message<Win32::Messages::Size> msg) -> Win32::LRESULT
 		{
 			return 0;
 		}

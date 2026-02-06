@@ -3,7 +3,7 @@
 
 import shared;
 
-struct InitD3D12App : Shared::D3D12App
+struct InitD3D12App : App::D3D12App
 {
 	InitD3D12App() : D3D12App(800, 600) 
 	{ 
@@ -18,7 +18,7 @@ struct InitD3D12App : Shared::D3D12App
 
 	auto OnMessage(
 		this InitD3D12App& self,
-		Shared::Win32Message<Win32::Messages::Size> message
+		App::Win32Message<Win32::Messages::Size> message
 	) -> Win32::LRESULT
 	{
 		return 0;

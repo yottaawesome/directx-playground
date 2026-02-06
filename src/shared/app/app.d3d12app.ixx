@@ -5,9 +5,9 @@ import :win32;
 import :com;
 import :error;
 
-export namespace Shared
+export namespace App
 {
-	struct D3D12App : WindowedApp
+	struct D3D12App : App::WindowedApp
 	{
 		virtual ~D3D12App() = default;
 		D3D12App(std::uint32_t width, std::uint32_t height)

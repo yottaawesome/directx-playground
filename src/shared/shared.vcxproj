@@ -144,7 +144,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="app\app.common.ixx" />
     <ClCompile Include="app\app.ixx" />
+    <ClCompile Include="app\app.windowedapp2.ixx" />
     <ClCompile Include="async\async.ixx" />
     <ClCompile Include="com\com.ixx" />
     <ClCompile Include="app\app.d3d12app.ixx" />

@@ -12,15 +12,30 @@ export namespace Approach1
 	public:
 		D3D12xApp()
 		{
-			appWindow.Initialise();
+			appWindow.SetCallback(
+				[this](const App::Win32Message<Win32::Messages::Size>& msg)
+				{ 
+					return this->OnMessage(msg); 
+				});
+			appWindow.InitialiseWindow();
 			d3d12State.emplace(WindowView{ .Handle = appWindow.GetHandle() });
 			d3d12State->Initialise();
 		}
 
-		auto OnMessage(this D3D12xApp& self, const Shared::Win32Message<Win32::Messages::Size>& msg) -> Win32::LRESULT
+		// Prevent moving to avoid dangling 'this' pointer inside appWindow
+		D3D12xApp(D3D12xApp&&) = delete;
+		D3D12xApp& operator=(D3D12xApp&&) = delete;
+
+		auto OnMessage(this D3D12xApp& self, const App::Win32Message<Win32::Messages::Size>& msg) -> Win32::LRESULT
 		{
-			if (self.d3d12State)
-				self.d3d12State->Resize(Win32::LoWord(msg.lParam), Win32::HiWord(msg.lParam));
+			// SIZE_MINIMIZED = 1. If minimized, dimensions are usually 0, and we shouldn't resize buffers.
+			if (not self.d3d12State or msg.wParam == 1)
+				return 0;
+
+			auto width = Win32::LoWord(msg.lParam);
+			auto height = Win32::HiWord(msg.lParam);
+			if (width > 0 and height > 0)
+				self.d3d12State->Resize(width, height);
 			return 0;
 		}
 
@@ -47,8 +62,8 @@ export namespace Approach1
 			return msg.wParam;
 		}
 	private:
-		using Window = Common::AppWindow<D3D12xApp>;
-		Window appWindow{ this, 800, 600 };
+		using Window = App::WindowedApp2;
+		Window appWindow{ 800, 600 };
 		std::optional<D3d12Context> d3d12State;
 	};
 }

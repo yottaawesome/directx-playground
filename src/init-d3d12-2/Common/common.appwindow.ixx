@@ -91,7 +91,7 @@ export namespace Common
 
 	private:
 		TMainApp* mainApp = nullptr;
-		Shared::HwndUniquePtr window;
+		App::HwndUniquePtr window;
 		std::uint32_t width = 0;
 		std::uint32_t height = 0;
 
@@ -174,7 +174,7 @@ export namespace Common
 				Win32::SetWindowLongPtrW(hwnd, Win32::Gwlp_UserData, reinterpret_cast<Win32::LONG_PTR>(pThis));
 
 				// Adopt ownership once, during creation
-				pThis->window = Shared::HwndUniquePtr(hwnd);
+				pThis->window = App::HwndUniquePtr(hwnd);
 			}
 			else
 			{
@@ -219,7 +219,7 @@ export namespace Common
 			return[=, &self]<size_t...Is>(std::index_sequence<Is...>)
 			{
 				auto result = std::pair<bool, Win32::LRESULT>{};
-				(... or [=, &self, &result]<typename TMsg = Shared::Win32Message<Shared::HandledMessages[Is]>>
+				(... or [=, &self, &result]<typename TMsg = App::Win32Message<App::HandledMessages[Is]>>
 				{
 					if constexpr (Handles<TMainApp, TMsg>)
 					{
@@ -240,7 +240,7 @@ export namespace Common
 				return msgType == Win32::Messages::Destroy
 					? (Win32::PostQuitMessage(0), 0)
 					: Win32::DefWindowProcW(hwnd, msgType, wParam, lParam);
-			}(std::make_index_sequence<Shared::HandledMessages.size()>());
+			}(std::make_index_sequence<App::HandledMessages.size()>());
 		}
 	};
 }

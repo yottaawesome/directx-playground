@@ -122,6 +122,17 @@ export namespace Win32
 		};
 	}
 
+	namespace SizingType
+	{
+		enum
+		{
+			Restored = SIZE_RESTORED,
+			Minimized = SIZE_MINIMIZED,
+			Maximized = SIZE_MAXIMIZED,
+			Other = SIZE_MAXSHOW
+		};
+	}
+
 	namespace WaitResult
 	{
 		enum

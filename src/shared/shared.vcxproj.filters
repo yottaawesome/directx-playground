@@ -54,6 +54,12 @@
     <ClCompile Include="concepts\concepts.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="app\app.windowedapp2.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="app\app.common.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
