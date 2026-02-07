@@ -7,8 +7,9 @@ import :app.common;
 
 export namespace App
 {
-	struct WindowedApp
+	class WindowedApp
 	{
+	public:
 		virtual ~WindowedApp() = default;
 		WindowedApp(const WindowedApp&) = delete;
 		WindowedApp& operator=(const WindowedApp&) = delete;
@@ -194,7 +195,7 @@ export namespace App
 			return self.width;
 		}
 
-	private:
+	protected:
 		HwndUniquePtr window;
 		unsigned width = 0;
 		unsigned height = 0;

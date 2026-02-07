@@ -313,9 +313,7 @@ export namespace Approach1
 		{
 			auto rtvHandle = D3D12::D3D12_CPU_DESCRIPTOR_HANDLE{ self.descriptorHeap->GetCPUDescriptorHandleForHeapStart() };
 
-			// Fix: Store the back buffers in the member vector
 			self.renderTargets.resize(self.swapChainBufferCount);
-
 			for (std::uint32_t i = 0; i < self.swapChainBufferCount; ++i)
 			{
 				auto hr = Com::HResult{
