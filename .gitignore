@@ -37,3 +37,4 @@ Debug/
 /src/0-basics/lib/*.idb
 
 vcpkg_installed/
+x64/
