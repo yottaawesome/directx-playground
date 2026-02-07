@@ -64,26 +64,23 @@ export namespace App
 			static_assert(
 				[&newCallback]<typename...TArgs>(std::tuple<TArgs...>& allCallbacks) constexpr
 				{
-					return ([&oldCallback = std::get<TArgs>(allCallbacks), &newCallback] constexpr
-					{
-						return std::assignable_from<decltype(oldCallback), decltype(newCallback)>;
-					}() or ...);
+					return (... or std::assignable_from<decltype(std::get<TArgs&>(allCallbacks)), decltype(newCallback)>);
 				}(self.Callbacks),
 				"Callback type not supported. Please check your parameters and update the Callbacks member if supporting a new message type."
 			);
 
 			[&newCallback]<typename...TArgs>(std::tuple<TArgs...>& allCallbacks) constexpr
 			{
-				bool applied = 
-					([&oldCallback = std::get<TArgs>(allCallbacks), &newCallback] constexpr
+				(... or [&oldCallback = std::get<TArgs>(allCallbacks), &newCallback] constexpr
+				{
+					// Note that you can change this to TArgs&
+					if constexpr (std::assignable_from<decltype(oldCallback), decltype(newCallback)>)
 					{
-						if constexpr (std::assignable_from<decltype(oldCallback), decltype(newCallback)>)
-						{
-							oldCallback = std::forward<decltype(newCallback)>(newCallback);
-							return true;
-						}
-						return false;
-					}() or ...);
+						oldCallback = std::forward<decltype(newCallback)>(newCallback);
+						return true;
+					}
+					return false;
+				}());
 			}(self.Callbacks);
 		}
 	};
