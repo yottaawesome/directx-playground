@@ -61,6 +61,8 @@ export namespace Error
 		}
 	};
 
+	using RuntimeError = Error<struct RuntimeErrorTag>;
+
 	class Win32Error : public std::runtime_error
 	{
 	public:

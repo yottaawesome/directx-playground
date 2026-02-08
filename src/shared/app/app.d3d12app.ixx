@@ -131,7 +131,7 @@ export namespace App
 			// Wait until the GPU has completed commands up to this fence point.
 			if (self.fence->GetCompletedValue() < self.currentFence)
 			{
-				Async::Event eventHandle{};
+				auto eventHandle = Async::ManualResetEvent{};
 				hr = self.fence->SetEventOnCompletion(self.currentFence, eventHandle.GetHandle());
 				if (not hr)
 					throw Error::ComError(hr, "Failed to set fence event");
