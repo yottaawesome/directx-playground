@@ -6,9 +6,25 @@ import :concepts;
 
 export namespace Async
 {
+	auto CreateRawEvent(bool manualReset, bool initialState) -> Win32::HANDLE
+	{
+		if (auto handle = Win32::CreateEventW(nullptr, manualReset, initialState, nullptr); handle)
+			return handle;
+		throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
+	}
+
+	auto CreateEvent(bool manualReset, bool initialState) -> Raii::HandleUniquePtr
+	{
+		return Raii::HandleUniquePtr{ CreateRawEvent(manualReset, initialState) };
+	}
+
 	class Event
 	{
 	public:
+		Event(Win32::HANDLE handle = CreateRawEvent(true, false)) 
+			: Handle(handle)
+		{ }
+
 		auto Reset(this Event& self) -> void
 		{
 			Win32::ResetEvent(self.Handle.get());
@@ -52,13 +68,7 @@ export namespace Async
 			return self.Handle.get();
 		}
 
-	private:
-		Raii::HandleUniquePtr Handle =
-			[] {
-				auto handle = Win32::CreateEventW(nullptr, true, false, nullptr);
-				if (not handle)
-					throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
-				return Raii::HandleUniquePtr{ handle };
-			}();
+	protected:
+		Raii::HandleUniquePtr Handle;
 	};
 }
