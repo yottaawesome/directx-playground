@@ -9,38 +9,52 @@ export namespace Async
 	struct EventOptions
 	{
 		std::wstring_view Name;
-		bool ManualReset = false;
 		bool InitialState = false;
 	};
 
-	auto CreateRawEvent(const EventOptions& options) -> Win32::HANDLE
-	{
-		auto handle = Win32::HANDLE{
-			Win32::CreateEventW(
-				nullptr,
-				options.ManualReset,
-				options.InitialState,
-				options.Name.empty() ? nullptr : options.Name.data()
-			)};
-		if (handle)
-			return handle;
-		throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
-	}
-
-	auto CreateEvent(const EventOptions& options) -> Raii::HandleUniquePtr
-	{
-		return Raii::HandleUniquePtr{ CreateRawEvent(options) };
-	}
-
-	template<bool VManualReset>
+	// Can define these as a template type with statics, but 
+	// MSVC ICEs if using static functions.
+	template<typename TPointer>
 	class Event
 	{
 	public:
-		constexpr Event(Win32::HANDLE handle = CreateRawEvent({ .ManualReset = VManualReset, .InitialState = false }))
+		constexpr Event(TPointer::element_type* handle)
 			: Handle(handle)
 		{ }
 
-		void Reset(this Event& self) requires VManualReset
+		constexpr Event()
+			: Handle(CreateEvent({ .InitialState = false }))
+		{ }
+
+		constexpr Event(const EventOptions& options)
+			: Handle(CreateEvent(options))
+		{ }
+
+		auto CreateRawEvent(this auto& self, const EventOptions& options) -> Win32::HANDLE
+		{
+			auto handle = Win32::HANDLE{
+				Win32::CreateEventW(
+					nullptr,
+					self.IsManualReset(),
+					options.InitialState,
+					options.Name.empty() ? nullptr : options.Name.data()
+				) };
+			if (handle)
+				return handle;
+			throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
+		}
+
+		auto CreateEvent(this auto& self, const EventOptions& options) -> Raii::HandleUniquePtr
+		{
+			return Raii::HandleUniquePtr{ self.CreateRawEvent(options) };
+		}
+
+		consteval auto IsManualReset(this auto&) noexcept -> bool
+		{
+			return false;
+		}
+
+		void Reset(this Event& self) requires (self.IsManualReset())
 		{
 			Win32::ResetEvent(self.Handle.get());
 		}
@@ -61,10 +75,7 @@ export namespace Async
 				throw Error::RuntimeError{std::format("Failed to wait for event in under {}", timeout)};
 		}
 
-		auto Wait(
-			this Event& self, 
-			Concepts::Duration auto&& timeout
-		) -> bool
+		auto Wait(this Event& self, Concepts::Duration auto&& timeout) -> bool
 		{
 			auto result = Win32::WaitForSingleObject(
 				self.Handle.get(),
@@ -82,15 +93,92 @@ export namespace Async
 			return std::forward_like<decltype(self)>(self.Handle);
 		}
 
-		constexpr auto GetHandle(this const Event& self) -> Win32::HANDLE
+		constexpr auto GetHandle(this const Event& self) -> TPointer::pointer
 		{
 			return self.Handle.get();
 		}
 
 	protected:
-		Raii::HandleUniquePtr Handle;
+		TPointer Handle;
 	};
 
-	using AutoResetEvent = Event<false>;
-	using ManualResetEvent = Event<true>;
+	struct AutoResetEvent : Event<Raii::HandleUniquePtr>
+	{
+		constexpr AutoResetEvent()
+			: Event({ .InitialState = false })
+		{ }
+
+		consteval auto IsManualReset(this auto&) noexcept -> bool
+		{
+			return false;
+		}
+	};
+
+	struct ManualResetEvent : Event<Raii::HandleUniquePtr>
+	{
+		constexpr ManualResetEvent()
+			: Event({ .InitialState = false })
+		{ }
+
+		consteval auto IsManualReset(this auto&) noexcept -> bool
+		{
+			return true;
+		}
+	};
+}
+
+namespace
+{
+	template<typename...T>
+	struct Overloaded : T...
+	{
+		using T::operator()...;
+		void Run()
+		{
+			(T::operator()(), ...);
+		}
+	};
+
+	void OO()
+	{
+		Overloaded{
+			[]{
+				static_assert(true);
+			},
+			[]{
+				static_assert(true);
+			}
+		}.Run();
+	}
+
+	using PtrType = std::unique_ptr<int>;
+
+	struct TestManualResetEvent : Async::Event<std::unique_ptr<int>>
+	{
+		constexpr TestManualResetEvent()
+			: Event(new int{1})
+		{ }
+
+		consteval auto IsManualReset(this auto&) noexcept -> bool
+		{
+			return true;
+		}
+	};
+
+	constexpr auto Done =
+		[](auto...args)
+		{
+			static_assert((args() and ...));
+			return true;
+		}(
+			[]{
+				TestManualResetEvent event;
+				return *event.GetHandle() == 1;
+			}
+		);
+
+	static_assert([] -> bool {
+		TestManualResetEvent event;
+		return *event.GetHandle() == 1;
+	}());
 }
