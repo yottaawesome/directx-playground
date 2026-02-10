@@ -97,11 +97,6 @@ export namespace Async
 			: Event(CreateEventHandle(true, { .InitialState = false }))
 		{ }
 
-		consteval auto IsManualReset(this auto&) noexcept -> bool
-		{
-			return true;
-		}
-
 		void Reset(this ManualResetEvent& self)
 		{
 			Win32::ResetEvent(self.Handle.get());
