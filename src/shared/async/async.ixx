@@ -2,6 +2,7 @@ export module shared:async;
 import :win32;
 import :error;
 import :raii;
+import :util;
 import :concepts;
 
 export namespace Async
@@ -93,7 +94,7 @@ export namespace Async
 			return std::forward_like<decltype(self)>(self.Handle);
 		}
 
-		constexpr auto GetHandle(this const Event& self) -> TPointer::pointer
+		constexpr auto GetHandle(this const auto& self) -> auto
 		{
 			return self.Handle.get();
 		}
@@ -129,28 +130,6 @@ export namespace Async
 
 namespace
 {
-	template<typename...T>
-	struct Overloaded : T...
-	{
-		using T::operator()...;
-		void Run()
-		{
-			(T::operator()(), ...);
-		}
-	};
-
-	void OO()
-	{
-		Overloaded{
-			[]{
-				static_assert(true);
-			},
-			[]{
-				static_assert(true);
-			}
-		}.Run();
-	}
-
 	using PtrType = std::unique_ptr<int>;
 
 	struct TestManualResetEvent : Async::Event<std::unique_ptr<int>>
@@ -163,22 +142,32 @@ namespace
 		{
 			return true;
 		}
+
+		constexpr void Reset(this auto& self) { }
 	};
 
-	constexpr auto Done =
-		[](auto...args)
-		{
-			static_assert((args() and ...));
-			return true;
-		}(
-			[]{
-				TestManualResetEvent event;
-				return *event.GetHandle() == 1;
-			}
-		);
+	struct TestAutoResetEvent : Async::Event<std::unique_ptr<int>>
+	{
+		constexpr TestAutoResetEvent()
+			: Event(new int{ 1 })
+		{ }
 
-	static_assert([] -> bool {
-		TestManualResetEvent event;
-		return *event.GetHandle() == 1;
-	}());
+		consteval auto IsManualReset(this auto&) noexcept -> bool
+		{
+			return false;
+		}
+	};
+
+	constexpr auto Tests = Util::Overloaded{
+		[] {
+			auto manual = TestManualResetEvent{};
+			manual.Reset();
+			return *manual.GetHandle() == 1;
+		},
+		[] {
+			auto manual = TestManualResetEvent{};
+			auto ptr = std::move(manual).GetPtr();
+			return *ptr == 1;
+		}
+	};
 }
