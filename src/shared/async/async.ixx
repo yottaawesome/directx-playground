@@ -13,6 +13,20 @@ export namespace Async
 		bool InitialState = false;
 	};
 
+	auto CreateEventHandle(bool manualReset, const EventOptions& options) -> Win32::HANDLE
+	{
+		auto handle = Win32::HANDLE{
+			Win32::CreateEventW(
+				nullptr,
+				manualReset,
+				options.InitialState,
+				options.Name.empty() ? nullptr : options.Name.data()
+			) };
+		if (handle)
+			return handle;
+		throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
+	}
+
 	// Can define these as a template type with statics, but 
 	// MSVC ICEs if using static functions.
 	template<typename TPointer>
@@ -23,41 +37,9 @@ export namespace Async
 			: Handle(handle)
 		{ }
 
-		constexpr Event()
-			: Handle(CreateEvent({ .InitialState = false }))
-		{ }
-
-		constexpr Event(const EventOptions& options)
-			: Handle(CreateEvent(options))
-		{ }
-
-		auto CreateRawEvent(this auto& self, const EventOptions& options) -> Win32::HANDLE
-		{
-			auto handle = Win32::HANDLE{
-				Win32::CreateEventW(
-					nullptr,
-					self.IsManualReset(),
-					options.InitialState,
-					options.Name.empty() ? nullptr : options.Name.data()
-				) };
-			if (handle)
-				return handle;
-			throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
-		}
-
-		auto CreateEvent(this auto& self, const EventOptions& options) -> Raii::HandleUniquePtr
+		auto CreateEvent(this auto& self, const EventOptions& options) -> TPointer
 		{
 			return Raii::HandleUniquePtr{ self.CreateRawEvent(options) };
-		}
-
-		consteval auto IsManualReset(this auto&) noexcept -> bool
-		{
-			return false;
-		}
-
-		void Reset(this Event& self) requires (self.IsManualReset())
-		{
-			Win32::ResetEvent(self.Handle.get());
 		}
 
 		void Set(this Event& self)
@@ -98,7 +80,6 @@ export namespace Async
 		{
 			return self.Handle.get();
 		}
-
 	protected:
 		TPointer Handle;
 	};
@@ -106,24 +87,24 @@ export namespace Async
 	struct AutoResetEvent : Event<Raii::HandleUniquePtr>
 	{
 		constexpr AutoResetEvent()
-			: Event({ .InitialState = false })
+			: Event(CreateEventHandle(false, { .InitialState = false }))
 		{ }
-
-		consteval auto IsManualReset(this auto&) noexcept -> bool
-		{
-			return false;
-		}
 	};
 
 	struct ManualResetEvent : Event<Raii::HandleUniquePtr>
 	{
 		constexpr ManualResetEvent()
-			: Event({ .InitialState = false })
+			: Event(CreateEventHandle(true, { .InitialState = false }))
 		{ }
 
 		consteval auto IsManualReset(this auto&) noexcept -> bool
 		{
 			return true;
+		}
+
+		void Reset(this ManualResetEvent& self)
+		{
+			Win32::ResetEvent(self.Handle.get());
 		}
 	};
 }
