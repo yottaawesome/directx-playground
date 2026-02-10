@@ -19,7 +19,7 @@ export namespace Util
 
 		constexpr void Run()
 		{
-			static_assert((T::operator()() and ...));
+			static_assert(((T::operator()(), ...), true));
 		}
 	};
 }

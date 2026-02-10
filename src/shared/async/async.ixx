@@ -162,12 +162,14 @@ namespace
 		[] {
 			auto manual = TestManualResetEvent{};
 			manual.Reset();
-			return *manual.GetHandle() == 1;
+			if (*manual.GetHandle() != 1)
+				throw std::exception{ "Handle value was not 1" };
 		},
 		[] {
 			auto manual = TestManualResetEvent{};
 			auto ptr = std::move(manual).GetPtr();
-			return *ptr == 1;
+			if (*ptr != 1)
+				throw std::exception{ "Ptr value was not 1" };
 		}
 	};
 }
