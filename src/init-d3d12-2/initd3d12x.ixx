@@ -10,6 +10,6 @@ import shared;
 
 export extern "C++" auto wWinMain(Win32::HINSTANCE, Win32::HINSTANCE, Win32::LPWSTR, int) -> int
 {
-	Approach1::D3d12xApp app;
+	auto app = Approach1::D3d12xApp{};
 	return static_cast<int>(app.MainLoop());
 }
