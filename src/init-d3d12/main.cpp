@@ -18,7 +18,7 @@ struct InitD3D12App : App::D3D12App
 
 	auto OnMessage(
 		this InitD3D12App& self,
-		App::Win32Message<Win32::Messages::Size> message
+		const App::Win32Message<Win32::Messages::Size>& message
 	) -> Win32::LRESULT
 	{
 		return 0;

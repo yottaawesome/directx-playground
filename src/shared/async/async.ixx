@@ -50,16 +50,21 @@ export namespace Async
 		{
 			return self.Handle.get();
 		}
+
+		constexpr auto Empty(this const auto& self) -> bool 
+		{ 
+			return not self.Handle; 
+		}
 	};
 
-	struct EventFactory
+	struct EventBuilder
 	{
-		std::wstring_view Name;
+		std::wstring Name = L"";
 		bool ManualReset = false;
 		bool InitialState = false;
 
 		[[nodiscard]]
-		auto Create(this const EventFactory& self) -> Raii::HandleUniquePtr
+		auto Create(this const EventBuilder& self) -> Raii::HandleUniquePtr
 		{
 			auto handle = Win32::HANDLE{
 				Win32::CreateEventW(
@@ -74,13 +79,13 @@ export namespace Async
 		}
 
 		[[nodiscard]]
-		operator Raii::HandleUniquePtr(this const EventFactory& self)
+		operator Raii::HandleUniquePtr(this const EventBuilder& self)
 		{
 			return self.Create();
 		}
 
 		[[nodiscard]]
-		auto operator()(this const EventFactory& self) -> Raii::HandleUniquePtr
+		auto operator()(this const EventBuilder& self) -> Raii::HandleUniquePtr
 		{
 			return self.Create();
 		}
@@ -88,7 +93,7 @@ export namespace Async
 
 	struct AutoResetEvent : Event
 	{
-		Raii::HandleUniquePtr Handle = EventFactory{};
+		Raii::HandleUniquePtr Handle = EventBuilder{};
 	};
 
 	struct ManualResetEvent : Event
@@ -98,7 +103,7 @@ export namespace Async
 			Win32::ResetEvent(self.Handle.get());
 		}
 
-		Raii::HandleUniquePtr Handle = EventFactory{ .ManualReset = true };
+		Raii::HandleUniquePtr Handle = EventBuilder{ .ManualReset = true };
 	};
 }
 
@@ -137,6 +142,8 @@ namespace
 			auto ptr = std::move(manual).GetPtr();
 			if (*ptr != 1)
 				throw std::exception{ "Ptr value was not 1" };
+			if (not manual.Empty())
+				throw std::exception{ "Expected object to be empty after move" };
 		}
 	};
 }
