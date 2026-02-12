@@ -29,10 +29,11 @@ export namespace Async
 
 		auto Wait(this auto& self, Concepts::Duration auto&& timeout) -> bool
 		{
-			auto result = Win32::WaitForSingleObject(
-				self.GetHandle(),
-				static_cast<std::uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(timeout).count())
-			);
+			auto result = Win32::DWORD{
+				Win32::WaitForSingleObject(
+					self.GetHandle(),
+					static_cast<std::uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(timeout).count())
+				)};
 			if (result == Win32::WaitResult::Timeout)
 				return false;
 			if (result == Win32::WaitResult::Signaled)
@@ -66,14 +67,20 @@ export namespace Async
 					self.ManualReset,
 					self.InitialState,
 					self.Name.empty() ? nullptr : self.Name.data()
-				) };
-			return handle
-				? Raii::HandleUniquePtr{ handle }
-				: throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
+				)};
+			if (not handle)
+				throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
+			return Raii::HandleUniquePtr{ handle };
 		}
 
 		[[nodiscard]]
 		operator Raii::HandleUniquePtr(this const EventFactory& self)
+		{
+			return self.Create();
+		}
+
+		[[nodiscard]]
+		auto operator()(this const EventFactory& self) -> Raii::HandleUniquePtr
 		{
 			return self.Create();
 		}
