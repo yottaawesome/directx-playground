@@ -67,9 +67,9 @@ export namespace Async
 					self.InitialState,
 					self.Name.empty() ? nullptr : self.Name.data()
 				) };
-			if (handle)
-				return Raii::HandleUniquePtr{ handle };
-			throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
+			return handle
+				? Raii::HandleUniquePtr{ handle }
+				: throw Error::Win32Error{ Win32::GetLastError(), "Failed to create event" };
 		}
 
 		[[nodiscard]]
@@ -105,11 +105,6 @@ namespace
 			: Handle(new int{1})
 		{ }
 
-		consteval auto IsManualReset(this auto&) noexcept -> bool
-		{
-			return true;
-		}
-
 		constexpr void Reset(this auto& self) { }
 		PtrType Handle;
 	};
@@ -120,10 +115,6 @@ namespace
 			: Handle(new int{ 1 })
 		{ }
 
-		consteval auto IsManualReset(this auto&) noexcept -> bool
-		{
-			return false;
-		}
 		PtrType Handle;
 	};
 

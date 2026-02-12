@@ -17,9 +17,9 @@ export namespace Util
 
 		using T::operator()...;
 
-		constexpr void Run()
+		constexpr void Run(this Overloaded& self)
 		{
-			static_assert(((T::operator()(), ...), true));
+			static_assert(((static_cast<T&>(self)(), ...), true));
 		}
 	};
 }
