@@ -4,6 +4,7 @@ import :error;
 import :raii;
 import :util;
 import :concepts;
+import :strings;
 
 export namespace Async
 {
@@ -54,6 +55,39 @@ export namespace Async
 		constexpr auto Empty(this const auto& self) -> bool 
 		{ 
 			return not self.Handle; 
+		}
+	};
+
+	struct EventOpener
+	{
+		std::wstring_view Name = L"";
+		Win32::DWORD DesiredAccess = Win32::EventAccess::All;
+		bool InheritHandle = false;
+
+		[[nodiscard]]
+		auto Open(this const EventOpener& self) -> Raii::HandleUniquePtr
+		{
+			auto handle = Win32::HANDLE{
+				Win32::OpenEventW(
+					self.DesiredAccess,
+					self.InheritHandle,
+					self.Name.data()
+				)};
+			if (not handle)
+				throw Error::Win32Error{ Win32::GetLastError(), std::format("Failed to open event with name '{}'", Strings::ConvertString(self.Name)) };
+			return Raii::HandleUniquePtr{ handle };
+		}
+		
+		[[nodiscard]]
+		operator Raii::HandleUniquePtr(this const EventOpener& self)
+		{
+			return self.Open();
+		}
+
+		[[nodiscard]]
+		auto operator()(this const EventOpener& self) -> Raii::HandleUniquePtr
+		{
+			return self.Open();
 		}
 	};
 

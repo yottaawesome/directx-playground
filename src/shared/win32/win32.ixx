@@ -60,6 +60,9 @@ export namespace Win32
 		::HRESULT,
 		::PWSTR,
 		::RECT,
+		::WideCharToMultiByte,
+		::MultiByteToWideChar,
+		::OpenEventW,
 		::GetClientRect,
 		::UnregisterClassW,
 		::CreateEventExW,
@@ -249,6 +252,24 @@ export namespace Win32
 	constexpr auto HiWord(auto dw) noexcept -> WORD
 	{
 		return HIWORD(dw);
+	}
+
+	namespace CodePages
+	{
+		enum
+		{
+			Utf8 = CP_UTF8
+		};
+	}
+
+	namespace WideCharOptions
+	{
+		enum
+		{
+			CompositeCheck = WC_COMPOSITECHECK,
+			Default = WC_DEFAULTCHAR,
+			NoBestFitChars = WC_NO_BEST_FIT_CHARS
+		};
 	}
 }
 

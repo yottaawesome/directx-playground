@@ -216,6 +216,8 @@
     <ClCompile Include="log\log.ixx" />
     <ClCompile Include="concepts\concepts.ixx" />
     <ClCompile Include="raii\raii.ixx" />
+    <ClCompile Include="strings\strings.conversion.ixx" />
+    <ClCompile Include="strings\strings.fixed.ixx" />
     <ClCompile Include="strings\strings.ixx" />
     <ClCompile Include="util\util.ixx" />
     <ClCompile Include="win32\win32.ixx" />

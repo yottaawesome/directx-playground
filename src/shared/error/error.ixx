@@ -112,8 +112,7 @@ export namespace Error
 			const std::source_location location = std::source_location::current(),
 			const std::stacktrace& trace = std::stacktrace::current()
 		) : m_hresult(hr), std::runtime_error(Format(hr, msg, location, trace))
-		{
-		}
+		{ }
 
 		auto GetHResult(this const ComError& self) noexcept -> Win32::HRESULT
 		{
