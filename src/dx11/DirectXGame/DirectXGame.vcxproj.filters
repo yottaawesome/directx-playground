@@ -33,6 +33,9 @@
     <ClCompile Include="DX3D\Game\game.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DX3D\Graphics\graphics.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

@@ -315,3 +315,19 @@ export namespace Win32
 	constexpr auto SOk = S_OK;
 	constexpr auto SFalse = S_FALSE;
 }
+
+export namespace D3D11
+{
+	constexpr auto SdkVersion = D3D11_SDK_VERSION;
+	using
+		::D3D11CreateDevice,
+		::D3D_DRIVER_TYPE,
+		::D3D11_CREATE_DEVICE_FLAG,
+		::D3D_FEATURE_LEVEL
+		;
+
+	using
+		::ID3D11Device,
+		::ID3D11DeviceContext
+		;
+}

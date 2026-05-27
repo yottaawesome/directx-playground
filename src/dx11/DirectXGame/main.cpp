@@ -1,3 +1,5 @@
+#pragma comment(lib, "d3d11.lib")
+
 import std;
 import dx3d;
 

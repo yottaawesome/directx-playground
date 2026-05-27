@@ -160,9 +160,23 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DX3D\Com\com.ixx" />
+    <ClCompile Include="DX3D\Com\comerror.ixx" />
+    <ClCompile Include="DX3D\Com\hresult.ixx" />
+    <ClCompile Include="DX3D\Com\ptr.ixx" />
     <ClCompile Include="DX3D\Core\core.ixx" />
     <ClCompile Include="DX3D\dx3d.ixx" />
+    <ClCompile Include="DX3D\Error\error.ixx" />
+    <ClCompile Include="DX3D\Error\functions.ixx" />
+    <ClCompile Include="DX3D\Error\runtimerror.ixx" />
+    <ClCompile Include="DX3D\Error\win32error.ixx" />
     <ClCompile Include="DX3D\Game\game.ixx" />
+    <ClCompile Include="DX3D\Graphics\graphics.ixx" />
+    <ClCompile Include="DX3D\Graphics\graphicscontext.ixx" />
+    <ClCompile Include="DX3D\Graphics\rendersystem.cpp">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
+    </ClCompile>
     <ClCompile Include="DX3D\Win32\win32.ixx" />
     <ClCompile Include="DX3D\Window\window.ixx" />
     <ClCompile Include="main.cpp" />
