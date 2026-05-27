@@ -1,2 +1,2 @@
 export module dx3d:graphics;
-export import :graphics.graphicscontext;
+export import :graphics.graphicsengine;

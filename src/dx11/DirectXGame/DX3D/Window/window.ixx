@@ -5,6 +5,10 @@ import :win32;
 
 export namespace dx3d
 {
+	struct WindowDesc
+	{
+		BaseDesc Base;
+	};
 	class Window : public Base
 	{
 	public:
@@ -13,10 +17,10 @@ export namespace dx3d
 			Win32::DestroyWindow(hwnd);
 		}
 
-		Window()
+		explicit Window(const WindowDesc& desc)
+			: Base(desc.Base)
 		{
 			Init();
-			
 		}
 
 	private:

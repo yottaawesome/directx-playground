@@ -164,7 +164,10 @@
     <ClCompile Include="DX3D\Com\comerror.ixx" />
     <ClCompile Include="DX3D\Com\hresult.ixx" />
     <ClCompile Include="DX3D\Com\ptr.ixx" />
+    <ClCompile Include="DX3D\Core\base.ixx" />
+    <ClCompile Include="DX3D\Core\common.ixx" />
     <ClCompile Include="DX3D\Core\core.ixx" />
+    <ClCompile Include="DX3D\Core\logger.ixx" />
     <ClCompile Include="DX3D\dx3d.ixx" />
     <ClCompile Include="DX3D\Error\error.ixx" />
     <ClCompile Include="DX3D\Error\functions.ixx" />
@@ -172,7 +175,7 @@
     <ClCompile Include="DX3D\Error\win32error.ixx" />
     <ClCompile Include="DX3D\Game\game.ixx" />
     <ClCompile Include="DX3D\Graphics\graphics.ixx" />
-    <ClCompile Include="DX3D\Graphics\graphicscontext.ixx" />
+    <ClCompile Include="DX3D\Graphics\graphicsengine.ixx" />
     <ClCompile Include="DX3D\Graphics\rendersystem.cpp">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>

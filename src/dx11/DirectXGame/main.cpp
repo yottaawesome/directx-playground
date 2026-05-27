@@ -6,7 +6,7 @@ import dx3d;
 auto main() -> int
 try
 {
-	auto game = dx3d::Game{};
+	auto game = dx3d::Game(dx3d::GameDesc{});
 	game.Run();
 	return 0;
 }

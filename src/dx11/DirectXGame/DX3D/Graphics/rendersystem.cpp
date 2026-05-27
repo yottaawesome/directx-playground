@@ -6,11 +6,16 @@ import :com;
 
 namespace dx3d
 {
+	struct RenderSystemDesc
+	{
+		BaseDesc Base;
+	};
 	class RenderSystem final : public Base
 	{
 	public:
 		virtual ~RenderSystem() override = default;
-		RenderSystem()
+		RenderSystem(const RenderSystemDesc& desc)
+			: Base(desc.Base)
 		{
 			constexpr auto createDeviceFlags = 
 				[] consteval -> unsigned

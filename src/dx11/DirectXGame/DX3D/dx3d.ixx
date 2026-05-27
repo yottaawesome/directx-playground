@@ -4,3 +4,5 @@ export import :window;
 export import :win32;
 export import :game;
 export import :graphics;
+export import :error;
+export import :com;

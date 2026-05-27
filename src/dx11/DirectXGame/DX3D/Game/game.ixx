@@ -3,17 +3,40 @@ import std;
 import :core;
 import :win32;
 import :window;
+import :graphics;
 
 export namespace dx3d
 {
+	struct GameDesc
+	{
+		Logger::LogLevel LogLevel = Logger::LogLevel::Info;
+	};
 	class Game : public Base
 	{
 	public:
-		virtual ~Game() override = default;
-
-		Game()
+		virtual ~Game() override
 		{
-			window = std::make_unique<Window>();
+			GetLogger().Info("Game deallocation started.");
+		}
+
+		Game(const GameDesc& desc)
+			: Base({ 
+				.Logger = *(new Logger{desc.LogLevel})
+			})
+			, loggerPtr{ &logger }
+		{
+			loggerPtr->Info("Game initialised.");
+			window = std::make_unique<Window>(
+				WindowDesc{
+					.Base = { .Logger = *loggerPtr }
+				}
+			);
+			graphicsEngine = std::make_unique<GraphicsEngine>(
+				GraphicsEngineDesc{
+					.Base = { .Logger = *loggerPtr }
+				}
+			);
+			loggerPtr->Info("Game initialisation completed.");
 		}
 
 		virtual void Run() final
@@ -36,6 +59,8 @@ export namespace dx3d
 			}
 		}
 	private:
+		std::unique_ptr<Logger> loggerPtr;
+		std::unique_ptr<GraphicsEngine> graphicsEngine;
 		std::unique_ptr<Window> window;
 		bool isRunning = true;
 	};
