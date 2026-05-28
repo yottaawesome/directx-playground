@@ -176,10 +176,12 @@
     <ClCompile Include="DX3D\Game\game.ixx" />
     <ClCompile Include="DX3D\Graphics\graphics.ixx" />
     <ClCompile Include="DX3D\Graphics\graphicsengine.ixx" />
+    <ClCompile Include="DX3D\Graphics\graphicsresource.ixx" />
     <ClCompile Include="DX3D\Graphics\rendersystem.cpp">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
     </ClCompile>
+    <ClCompile Include="DX3D\Graphics\swapchain.ixx" />
     <ClCompile Include="DX3D\Win32\win32.ixx" />
     <ClCompile Include="DX3D\Window\window.ixx" />
     <ClCompile Include="main.cpp" />

@@ -31,7 +31,7 @@ namespace dx3d
 				D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0,
 			};
 			auto createdFeatureLevel = D3D11::D3D_FEATURE_LEVEL{};
-			auto hr = Win32::HRESULT{ 
+			auto hr = HResult{ 
 				D3D11::D3D11CreateDevice(
 					nullptr,
 					D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE,
@@ -44,11 +44,21 @@ namespace dx3d
 					&createdFeatureLevel,
 					deviceContext.ReleaseAndGetAddressOf()
 				) };
-			if (Win32::Failed(hr))
-				throw ComError{hr, "Failed to create D3D11 device and context." };
+			if (not hr)
+				throw ComError{ hr, "Failed to create D3D11 device and context." };
+
+			dxgiDevice = device.As<DXGI::IDXGIDevice>();
+			
+			if (hr = dxgiDevice->GetParent(dxgiAdapter.GetUuid(), dxgiAdapter.AddressOf()); not hr)
+				throw ComError{ hr, "Failed to get DXGI adapter from D3D11 device." };
+			if (hr = dxgiAdapter->GetParent(dxgiFactory.GetUuid(), dxgiFactory.AddressOf()); not hr)
+				throw ComError{ hr, "Failed to get DXGI factory from DXGI adapter." };
 		}
 	private:
 		Ptr<D3D11::ID3D11Device> device;
 		Ptr<D3D11::ID3D11DeviceContext> deviceContext;
+		Ptr<DXGI::IDXGIDevice> dxgiDevice;
+		Ptr<DXGI::IDXGIAdapter> dxgiAdapter;
+		Ptr<DXGI::IDXGIFactory> dxgiFactory;
 	};
 }

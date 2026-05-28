@@ -331,3 +331,12 @@ export namespace D3D11
 		::ID3D11DeviceContext
 		;
 }
+
+export namespace DXGI
+{
+	using
+		::IDXGIDevice,
+		::IDXGIAdapter,
+		::IDXGIFactory
+		;
+}
