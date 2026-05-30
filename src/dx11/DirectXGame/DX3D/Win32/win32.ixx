@@ -44,6 +44,7 @@ export namespace Win32
 		::CLSCTX,
 		::UINT32,
 		::CREATESTRUCTW,
+		::LONG,
 		::AdjustWindowRect,
 		::KillTimer,
 		::SetTimer,
@@ -337,6 +338,24 @@ export namespace DXGI
 	using
 		::IDXGIDevice,
 		::IDXGIAdapter,
-		::IDXGIFactory
+		::IDXGIFactory,
+		::IDXGISwapChain,
+		::DXGI_SWAP_CHAIN_DESC,
+		::DXGI_MODE_DESC,
+		::DXGI_USAGE,
+		::DXGI_FORMAT,
+		::DXGI_SAMPLE_DESC,
+		::DXGI_SWAP_EFFECT
 		;
+
+	namespace Usage
+	{
+		constexpr auto ShaderInput = DXGI_USAGE_SHADER_INPUT;
+		constexpr auto RenderTargetOutput = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		constexpr auto BackBuffer = DXGI_USAGE_BACK_BUFFER;
+		constexpr auto Shared = DXGI_USAGE_SHARED;
+		constexpr auto ReadOnly = DXGI_USAGE_READ_ONLY;
+		constexpr auto DiscardOnPresent = DXGI_USAGE_DISCARD_ON_PRESENT;
+		constexpr auto UnorderedAccess = DXGI_USAGE_UNORDERED_ACCESS;
+	}
 }

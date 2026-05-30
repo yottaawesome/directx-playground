@@ -173,15 +173,19 @@
     <ClCompile Include="DX3D\Error\functions.ixx" />
     <ClCompile Include="DX3D\Error\runtimerror.ixx" />
     <ClCompile Include="DX3D\Error\win32error.ixx" />
+    <ClCompile Include="DX3D\Game\display.ixx" />
     <ClCompile Include="DX3D\Game\game.ixx" />
+    <ClCompile Include="DX3D\Game\maingame.ixx" />
     <ClCompile Include="DX3D\Graphics\graphics.ixx" />
     <ClCompile Include="DX3D\Graphics\graphicsengine.ixx" />
     <ClCompile Include="DX3D\Graphics\graphicsresource.ixx" />
-    <ClCompile Include="DX3D\Graphics\rendersystem.cpp">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCppModuleInternalPartition</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCppModuleInternalPartition</CompileAs>
+    <ClCompile Include="DX3D\Graphics\rendersystem.ixx">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</CompileAs>
     </ClCompile>
     <ClCompile Include="DX3D\Graphics\swapchain.ixx" />
+    <ClCompile Include="DX3D\Math\math.ixx" />
+    <ClCompile Include="DX3D\Math\rect.ixx" />
     <ClCompile Include="DX3D\Win32\win32.ixx" />
     <ClCompile Include="DX3D\Window\window.ixx" />
     <ClCompile Include="main.cpp" />

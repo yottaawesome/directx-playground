@@ -21,6 +21,10 @@ export namespace dx3d
 					.Base = desc.Base 
 				});
 		}
+		auto GetRenderSystem() const noexcept -> RenderSystem&
+		{
+			return *renderSystem;
+		}
 	private:
 		std::unique_ptr<RenderSystem> renderSystem;
 	};

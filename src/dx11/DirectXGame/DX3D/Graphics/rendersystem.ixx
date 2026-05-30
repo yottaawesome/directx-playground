@@ -1,8 +1,10 @@
-module dx3d:graphics.rendersystem;
+export module dx3d:graphics.rendersystem;
 import std;
 import :core;
 import :win32;
 import :com;
+import :graphics.swapchain;
+import :graphics.graphicsresource;
 
 namespace dx3d
 {
@@ -53,6 +55,24 @@ namespace dx3d
 				throw ComError{ hr, "Failed to get DXGI adapter from D3D11 device." };
 			if (hr = dxgiAdapter->GetParent(dxgiFactory.GetUuid(), dxgiFactory.AddressOf()); not hr)
 				throw ComError{ hr, "Failed to get DXGI factory from DXGI adapter." };
+		}
+
+		auto CreateSwapChain(const SwapChainDesc& desc) const
+			-> std::shared_ptr<SwapChain>
+		{
+			return std::make_shared<SwapChain>(
+				desc, 
+				GraphicsResourceDesc{ GetGraphicsResourceDesc() }
+			);
+		}
+	private:
+		auto GetGraphicsResourceDesc() const -> GraphicsResourceDesc
+		{
+			return GraphicsResourceDesc{ 
+				logger, 
+				*device.Get(),
+				*dxgiFactory.Get()
+			};
 		}
 	private:
 		Ptr<D3D11::ID3D11Device> device;

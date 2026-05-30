@@ -19,8 +19,8 @@ export namespace dx3d
 		if (not errorMsg)
 			return "Unknown error";
 
-		Win32::LocalFree(errorMsg);
 		auto message = std::string{ errorMsg };
+		Win32::LocalFree(errorMsg);
 		while (message.ends_with('\r') or message.ends_with('\n'))
 			message.pop_back();
 		return message;

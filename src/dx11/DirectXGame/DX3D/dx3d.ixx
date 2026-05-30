@@ -6,3 +6,4 @@ export import :game;
 export import :graphics;
 export import :error;
 export import :com;
+export import :math;

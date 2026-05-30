@@ -72,13 +72,25 @@
     <ClCompile Include="DX3D\Graphics\graphicsengine.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DX3D\Graphics\rendersystem.cpp">
+    <ClCompile Include="DX3D\Graphics\rendersystem.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DX3D\Graphics\swapchain.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DX3D\Graphics\graphicsresource.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX3D\Math\rect.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX3D\Math\math.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX3D\Game\maingame.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX3D\Game\display.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

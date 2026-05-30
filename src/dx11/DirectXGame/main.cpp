@@ -6,7 +6,7 @@ import dx3d;
 auto main() -> int
 try
 {
-	auto game = dx3d::Game(dx3d::GameDesc{});
+	auto game = dx3d::Game{dx3d::GameDesc{.WindowSize = {1280, 720}}};
 	game.Run();
 	return 0;
 }

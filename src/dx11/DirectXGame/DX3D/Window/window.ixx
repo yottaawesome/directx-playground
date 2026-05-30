@@ -2,12 +2,14 @@ export module dx3d:window;
 import std;
 import :core;
 import :win32;
+import :math;
 
 export namespace dx3d
 {
 	struct WindowDesc
 	{
 		BaseDesc Base;
+		Rect Size;
 	};
 	class Window : public Base
 	{
@@ -18,14 +20,12 @@ export namespace dx3d
 		}
 
 		explicit Window(const WindowDesc& desc)
-			: Base(desc.Base)
+			: Base(desc.Base), size{ desc.Size }
 		{
 			Init();
 		}
 
-	private:
-		Win32::HWND hwnd = nullptr;
-
+	protected:
 		static constexpr auto GetWindowClassName() noexcept -> const wchar_t*
 		{
 			return L"DX3DWindow";
@@ -62,12 +62,12 @@ export namespace dx3d
 				}();
 
 			hwnd = 
-				[] static -> Win32::HWND
+				[size = size] -> Win32::HWND
 				{
 					constexpr auto WindowStyles =
 						Win32::WindowStyles::Overlapped | Win32::WindowStyles::Caption | Win32::WindowStyles::Visible | Win32::WindowStyles::SysMenu;
 
-					auto rect = Win32::RECT{ 0, 0, 1280, 720 };
+					auto rect = Win32::RECT{ 0, 0, static_cast<Win32::LONG>(size.Width), static_cast<Win32::LONG>(size.Height) };
 					Win32::AdjustWindowRect(&rect, WindowStyles, Win32::False);
 
 					auto hwnd =
@@ -93,5 +93,8 @@ export namespace dx3d
 					return hwnd;
 				}();
 		}
+	protected:
+		Win32::HWND hwnd = nullptr;
+		Rect size{ 1280, 720 };
 	};
 }
