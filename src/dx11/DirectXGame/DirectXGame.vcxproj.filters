@@ -72,7 +72,7 @@
     <ClCompile Include="DX3D\Graphics\graphicsengine.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DX3D\Graphics\rendersystem.ixx">
+    <ClCompile Include="DX3D\Graphics\graphicsdevice.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DX3D\Graphics\swapchain.ixx">
@@ -91,6 +91,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DX3D\Game\display.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX3D\Graphics\devicecontext.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX3D\Math\vec4.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

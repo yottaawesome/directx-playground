@@ -44,8 +44,30 @@ export namespace dx3d
 				) };
 			if (not hr)
 				throw ComError{ hr, "Failed to create swap chain" };
+
+			ReloadBuffers();
+		}
+
+		void Present(bool vsync = false)
+		{
+			if (auto hr = HResult{ swapchain->Present(vsync ? 1 : 0, 0) }; not hr)
+				throw ComError{ hr, "Failed to present swap chain." };
+		}
+
+	private:
+		friend class DeviceContext;
+		void ReloadBuffers()
+		{
+			auto backBuffer = Ptr<D3D11::ID3D11Texture2D>{};
+			auto hr = HResult{ swapchain->GetBuffer(0, backBuffer.GetUuid(), backBuffer.AddressOf()) };
+			if (not hr)
+				throw ComError{ hr, "Failed to get back buffer from swap chain." };
+			hr = device.CreateRenderTargetView(backBuffer.Get(), nullptr, renderTargetView.ReleaseAndGetAddressOf());
+			if (not hr)
+				throw ComError{ hr, "Failed to create render target view for back buffer." };
 		}
 	private:
 		Ptr<DXGI::IDXGISwapChain> swapchain;
+		Ptr<D3D11::ID3D11RenderTargetView> renderTargetView; //m_rtv
 	};
 }

@@ -15,6 +15,9 @@ export namespace dx3d
 			Critical
 		};
 
+		Logger(const Logger& other) = delete;
+		auto operator=(const Logger& other) -> Logger& = delete;
+
 		explicit Logger(LogLevel level = LogLevel::Error)
 			: minimumLogLevel(level)
 		{}

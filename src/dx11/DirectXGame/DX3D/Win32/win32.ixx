@@ -329,6 +329,9 @@ export namespace D3D11
 
 	using
 		::ID3D11Device,
+		::ID3D11RenderTargetView,
+		::ID3D11Texture2D,
+		::ID3D11CommandList,
 		::ID3D11DeviceContext
 		;
 }

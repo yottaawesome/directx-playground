@@ -28,7 +28,7 @@ export namespace dx3d
 			: logger{desc.Logger} 
 		{ }
 		
-		virtual auto GetLogger() const noexcept -> Logger& final
+		virtual auto GetLogger() noexcept -> Logger& final
 		{ 
 			return logger; 
 		}

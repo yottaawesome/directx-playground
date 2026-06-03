@@ -10,7 +10,7 @@ namespace dx3d
 	struct DisplayDesc
 	{
 		WindowDesc Window;
-		RenderSystem& RenderSystem;
+		GraphicsDevice& GraphicsDevice;
 	};
 	class Display final : public Window
 	{
@@ -18,11 +18,16 @@ namespace dx3d
 		explicit Display(const DisplayDesc& desc)
 			: Window(desc.Window)
 		{
-			swapchain = desc.RenderSystem.CreateSwapChain(
+			swapchain = desc.GraphicsDevice.CreateSwapChain(
 				{
 					.WinHandle = hwnd,
 					.WinSize = size
 				});
+		}
+
+		auto GetSwapChain() noexcept -> SwapChain&
+		{
+			return *swapchain;
 		}
 	private:
 		std::shared_ptr<SwapChain> swapchain;

@@ -37,7 +37,7 @@ export namespace dx3d
 			display = std::make_unique<Display>(
 				DisplayDesc{
 					WindowDesc{logger, desc.WindowSize},
-					graphicsEngine->GetRenderSystem()
+					graphicsEngine->GetGraphicsDevice()
 				}
 			);
 			loggerPtr->Info("Game initialisation completed.");
@@ -59,8 +59,13 @@ export namespace dx3d
 					Win32::TranslateMessage(&msg);
 					Win32::DispatchMessageW(&msg);
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				OnInternalUpdate();
 			}
+		}
+	private:
+		void OnInternalUpdate()
+		{
+			graphicsEngine->Render(display->GetSwapChain());
 		}
 	private:
 		std::unique_ptr<Logger> loggerPtr;

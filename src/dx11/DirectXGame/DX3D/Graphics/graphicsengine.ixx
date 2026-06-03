@@ -1,7 +1,9 @@
 export module dx3d:graphics.graphicsengine;
 import std;
 import :core;
-import :graphics.rendersystem;
+import :graphics.graphicsdevice;
+import :graphics.devicecontext;
+import :graphics.swapchain;
 
 export namespace dx3d
 {
@@ -16,16 +18,25 @@ export namespace dx3d
 		explicit GraphicsEngine(const GraphicsEngineDesc& desc)
 			: Base(desc.Base)
 		{
-			renderSystem = std::make_unique<RenderSystem>(
-				RenderSystemDesc{ 
+			graphicsDevice = std::make_unique<GraphicsDevice>(
+				GraphicsDeviceDesc{ 
 					.Base = desc.Base 
 				});
+			auto& device = GetGraphicsDevice();
+			deferredDeviceContext = device.CreateDeviceContext();
 		}
-		auto GetRenderSystem() const noexcept -> RenderSystem&
+		auto GetGraphicsDevice() noexcept -> GraphicsDevice&
 		{
-			return *renderSystem;
+			return *graphicsDevice;
+		}
+		void Render(SwapChain& swapChain)
+		{
+			deferredDeviceContext->ClearAndSetBackBuffer(swapChain, {1,0,0,1});
+			graphicsDevice->ExecuteCommandLists(*deferredDeviceContext);
+			swapChain.Present();
 		}
 	private:
-		std::unique_ptr<RenderSystem> renderSystem;
+		std::unique_ptr<GraphicsDevice> graphicsDevice;
+		std::shared_ptr<DeviceContext> deferredDeviceContext;
 	};
 }

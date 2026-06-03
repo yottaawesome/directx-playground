@@ -1,22 +1,23 @@
-export module dx3d:graphics.rendersystem;
+export module dx3d:graphics.graphicsdevice;
 import std;
 import :core;
 import :win32;
 import :com;
 import :graphics.swapchain;
 import :graphics.graphicsresource;
+import :graphics.devicecontext;
 
 namespace dx3d
 {
-	struct RenderSystemDesc
+	struct GraphicsDeviceDesc
 	{
 		BaseDesc Base;
 	};
-	class RenderSystem final : public Base
+	class GraphicsDevice final : public Base
 	{
 	public:
-		virtual ~RenderSystem() override = default;
-		RenderSystem(const RenderSystemDesc& desc)
+		virtual ~GraphicsDevice() override = default;
+		GraphicsDevice(const GraphicsDeviceDesc& desc)
 			: Base(desc.Base)
 		{
 			constexpr auto createDeviceFlags = 
@@ -44,7 +45,7 @@ namespace dx3d
 					D3D11::SdkVersion,
 					device.ReleaseAndGetAddressOf(),
 					&createdFeatureLevel,
-					deviceContext.ReleaseAndGetAddressOf()
+					d3dDeviceContext.ReleaseAndGetAddressOf()
 				) };
 			if (not hr)
 				throw ComError{ hr, "Failed to create D3D11 device and context." };
@@ -65,6 +66,21 @@ namespace dx3d
 				GraphicsResourceDesc{ GetGraphicsResourceDesc() }
 			);
 		}
+
+		auto CreateDeviceContext() const
+			-> std::shared_ptr<DeviceContext>
+		{
+			return std::make_shared<DeviceContext>(GetGraphicsResourceDesc());
+		}
+
+		void ExecuteCommandLists(DeviceContext& deferredContexts) const
+		{
+			auto commandList = Ptr<D3D11::ID3D11CommandList>{};
+			auto hr = deferredContexts.deferredDeviceContext->FinishCommandList(false, commandList.ReleaseAndGetAddressOf());
+			if(Win32::Failed(hr))
+				throw ComError{ hr, "Failed to finish command list." };
+			d3dDeviceContext->ExecuteCommandList(commandList.Get(), false);
+		}
 	private:
 		auto GetGraphicsResourceDesc() const -> GraphicsResourceDesc
 		{
@@ -76,7 +92,7 @@ namespace dx3d
 		}
 	private:
 		Ptr<D3D11::ID3D11Device> device;
-		Ptr<D3D11::ID3D11DeviceContext> deviceContext;
+		Ptr<D3D11::ID3D11DeviceContext> d3dDeviceContext; // m_d3dContext
 		Ptr<DXGI::IDXGIDevice> dxgiDevice;
 		Ptr<DXGI::IDXGIAdapter> dxgiAdapter;
 		Ptr<DXGI::IDXGIFactory> dxgiFactory;

@@ -176,16 +176,18 @@
     <ClCompile Include="DX3D\Game\display.ixx" />
     <ClCompile Include="DX3D\Game\game.ixx" />
     <ClCompile Include="DX3D\Game\maingame.ixx" />
+    <ClCompile Include="DX3D\Graphics\devicecontext.ixx" />
     <ClCompile Include="DX3D\Graphics\graphics.ixx" />
     <ClCompile Include="DX3D\Graphics\graphicsengine.ixx" />
     <ClCompile Include="DX3D\Graphics\graphicsresource.ixx" />
-    <ClCompile Include="DX3D\Graphics\rendersystem.ixx">
+    <ClCompile Include="DX3D\Graphics\graphicsdevice.ixx">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</CompileAs>
     </ClCompile>
     <ClCompile Include="DX3D\Graphics\swapchain.ixx" />
     <ClCompile Include="DX3D\Math\math.ixx" />
     <ClCompile Include="DX3D\Math\rect.ixx" />
+    <ClCompile Include="DX3D\Math\vec4.ixx" />
     <ClCompile Include="DX3D\Win32\win32.ixx" />
     <ClCompile Include="DX3D\Window\window.ixx" />
     <ClCompile Include="main.cpp" />
