@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mini-engine", "mini-engine\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "init-d3d12-2", "init-d3d12-2\init-d3d12-2.vcxproj", "{1155F46C-711C-474E-AD38-F6974DE8D834}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "agility-sdk-sample", "agility-sdk-sample\agility-sdk-sample.vcxproj", "{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -191,6 +193,30 @@ Global
 		{1155F46C-711C-474E-AD38-F6974DE8D834}.Release|x64.Build.0 = Release|x64
 		{1155F46C-711C-474E-AD38-F6974DE8D834}.Release|x86.ActiveCfg = Release|Win32
 		{1155F46C-711C-474E-AD38-F6974DE8D834}.Release|x86.Build.0 = Release|Win32
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|ARM.ActiveCfg = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|ARM.Build.0 = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|ARM64.ActiveCfg = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|ARM64.Build.0 = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|x64.ActiveCfg = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|x64.Build.0 = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|x86.ActiveCfg = Debug|Win32
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Debug|x86.Build.0 = Debug|Win32
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|ARM.ActiveCfg = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|ARM.Build.0 = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|ARM64.ActiveCfg = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|ARM64.Build.0 = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|x64.ActiveCfg = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|x64.Build.0 = Debug|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|x86.ActiveCfg = Debug|Win32
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.DebugInstrumented|x86.Build.0 = Debug|Win32
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|ARM.ActiveCfg = Release|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|ARM.Build.0 = Release|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|ARM64.ActiveCfg = Release|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|ARM64.Build.0 = Release|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|x64.ActiveCfg = Release|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|x64.Build.0 = Release|x64
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|x86.ActiveCfg = Release|Win32
+		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -38,3 +38,4 @@ Debug/
 
 vcpkg_installed/
 x64/
+packages/

@@ -176,6 +176,9 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BuildStlModules>true</BuildStlModules>
+      <ModuleOutputFile>$(IntDir)%(RelativeDir)</ModuleOutputFile>
+      <ModuleDependenciesFile>$(IntDir)%(RelativeDir)</ModuleDependenciesFile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -193,6 +196,9 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BuildStlModules>true</BuildStlModules>
+      <ModuleOutputFile>$(IntDir)%(RelativeDir)</ModuleOutputFile>
+      <ModuleDependenciesFile>$(IntDir)%(RelativeDir)</ModuleDependenciesFile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -231,6 +237,9 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <BuildStlModules>true</BuildStlModules>
+      <ModuleOutputFile>$(IntDir)%(RelativeDir)</ModuleOutputFile>
+      <ModuleDependenciesFile>$(IntDir)%(RelativeDir)</ModuleDependenciesFile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
