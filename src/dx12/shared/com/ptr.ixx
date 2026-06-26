@@ -5,13 +5,13 @@ import :win32;
 export namespace Com
 {
 	template<typename T>
-	concept ComObjectPtr = requires(T* t)
+	concept ComLike = requires(T* t)
 	{
-		t->AddRef();
-		t->Release();
+		{ t->AddRef() } -> std::same_as<unsigned long>;
+		{ t->Release() } -> std::same_as<unsigned long>;
 	};
 
-	template<ComObjectPtr T>
+	template<ComLike T>
 	struct Ptr
 	{
 		using pointer = T*;
