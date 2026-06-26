@@ -59,6 +59,7 @@
     <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>true</EnableASAN>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugInstrumented|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -66,6 +67,7 @@
     <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>true</EnableASAN>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -74,6 +76,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>true</EnableASAN>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -150,6 +153,9 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <ModuleOutputFile>$(IntDir)%(RelativeDir)</ModuleOutputFile>
+      <ModuleDependenciesFile>$(IntDir)%(RelativeDir)</ModuleDependenciesFile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -163,6 +169,9 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <ModuleOutputFile>$(IntDir)%(RelativeDir)</ModuleOutputFile>
+      <ModuleDependenciesFile>$(IntDir)%(RelativeDir)</ModuleDependenciesFile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -178,6 +187,9 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <ModuleOutputFile>$(IntDir)%(RelativeDir)</ModuleOutputFile>
+      <ModuleDependenciesFile>$(IntDir)%(RelativeDir)</ModuleDependenciesFile>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

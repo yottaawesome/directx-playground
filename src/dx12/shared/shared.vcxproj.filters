@@ -66,6 +66,12 @@
     <ClCompile Include="strings\strings.fixed.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="com\ptr.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="com\hresult.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

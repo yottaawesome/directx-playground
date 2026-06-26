@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "init-d3d12-2", "init-d3d12-
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "agility-sdk-sample", "agility-sdk-sample\agility-sdk-sample.vcxproj", "{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compile-shader", "compile-shader\compile-shader.vcxproj", "{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -217,6 +219,30 @@ Global
 		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|x64.Build.0 = Release|x64
 		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|x86.ActiveCfg = Release|Win32
 		{6A06FBDD-9C4A-4DCA-976B-4B69F81BE499}.Release|x86.Build.0 = Release|Win32
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|ARM.ActiveCfg = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|ARM.Build.0 = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|ARM64.ActiveCfg = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|ARM64.Build.0 = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|x64.ActiveCfg = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|x64.Build.0 = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|x86.ActiveCfg = Debug|Win32
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Debug|x86.Build.0 = Debug|Win32
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|ARM.ActiveCfg = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|ARM.Build.0 = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|ARM64.ActiveCfg = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|ARM64.Build.0 = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|x64.ActiveCfg = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|x64.Build.0 = Debug|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|x86.ActiveCfg = Debug|Win32
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.DebugInstrumented|x86.Build.0 = Debug|Win32
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|ARM.ActiveCfg = Release|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|ARM.Build.0 = Release|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|ARM64.ActiveCfg = Release|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|ARM64.Build.0 = Release|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|x64.ActiveCfg = Release|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|x64.Build.0 = Release|x64
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|x86.ActiveCfg = Release|Win32
+		{72A45E90-97A9-4AE1-BF9A-5E8E91EEC536}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
