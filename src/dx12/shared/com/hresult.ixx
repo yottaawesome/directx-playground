@@ -19,7 +19,7 @@ export namespace Com
 
 		constexpr operator Win32::HRESULT() const noexcept { return Hr; }
 
-		constexpr HResult& operator=(const Win32::HRESULT hr) noexcept
+		constexpr auto operator=(const Win32::HRESULT hr) noexcept -> HResult&
 		{
 			Hr = hr;
 			return *this;
@@ -27,22 +27,22 @@ export namespace Com
 
 		constexpr operator bool() const noexcept { return Succeeded(); }
 
-		constexpr bool operator==(const Win32::HRESULT hr) const noexcept { return Hr == hr; }
+		constexpr auto operator==(const Win32::HRESULT hr) const noexcept -> bool { return Hr == hr; }
 
-		constexpr bool operator==(const HResult& hr) const noexcept { return Hr == hr.Hr; }
+		constexpr auto operator==(const HResult& hr) const noexcept -> bool { return Hr == hr.Hr; }
 
 		// See https://learn.microsoft.com/en-us/windows/win32/com/using-macros-for-error-handling
-		constexpr Win32::HRESULT Get() const noexcept { return Hr; }
+		constexpr auto Get() const noexcept -> Win32::HRESULT { return Hr; }
 
-		constexpr long Facility() const noexcept { return Win32::Facility(Hr); }
+		constexpr auto Facility() const noexcept -> long { return Win32::Facility(Hr); }
 
-		constexpr long Code() const noexcept { return Win32::Code(Hr); }
+		constexpr auto Code() const noexcept -> long { return Win32::Code(Hr); }
 
-		constexpr long Severity() const noexcept { return Win32::Severity(Hr); }
+		constexpr auto Severity() const noexcept -> long { return Win32::Severity(Hr); }
 
-		constexpr bool Succeeded() const noexcept { return Win32::HrSuccess(Hr); }
+		constexpr auto Succeeded() const noexcept -> bool { return Win32::HrSuccess(Hr); }
 
-		constexpr bool Failed() const noexcept { return not Succeeded(); }
+		constexpr auto Failed() const noexcept -> bool { return not Succeeded(); }
 
 		void ThrowIfFailed(std::string_view msg, const std::source_location& loc = std::source_location::current()) const
 		{
