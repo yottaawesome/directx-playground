@@ -5,6 +5,13 @@ import :win32;
 export namespace Com
 {
 	template<typename T>
+	concept ComObjectPtr = requires(T* t)
+	{
+		t->AddRef();
+		t->Release();
+	};
+
+	template<ComObjectPtr T>
 	struct Ptr
 	{
 		using pointer = T*;
@@ -78,6 +85,11 @@ export namespace Com
 			if (self.ptr)
 				(self.ptr->Release(), self.ptr = nullptr);
 			return self;
+		}
+
+		constexpr auto Release(this Ptr& self) noexcept -> Ptr&
+		{
+			return self.reset();
 		}
 
 		constexpr auto detach(this Ptr& self) noexcept -> T*
