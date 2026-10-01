@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="BasicDXMath/BasicDXMath.vcxproj" Id="f3b5d405-8b6b-4102-b4e8-877d2e8196ec" />
+</Solution>
