@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="WindowsPlatform.cpp" />
     <ClCompile Include="WindowsPlatform.ixx" />
   </ItemGroup>
   <ItemGroup>
