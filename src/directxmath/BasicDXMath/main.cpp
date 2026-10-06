@@ -1,5 +1,5 @@
 import std;
-import WindowsPlatform;
+import Shared;
 
 //
 // Print utility functions;
