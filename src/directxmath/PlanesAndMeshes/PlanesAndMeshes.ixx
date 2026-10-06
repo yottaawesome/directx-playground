@@ -2,7 +2,7 @@ export module PlanesAndMeshes;
 import std;
 import Shared;
 
-export namespace Physics
+export namespace PlanesAndMeshes::Physics
 {
 	struct Plane
 	{
@@ -24,11 +24,18 @@ export namespace Physics
 			auto p2 = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&other.Normal), other.D);
 			return DirectX::XMPlaneEqual(p1, p2);
 		}
+
+		auto IsNearEqual(const Plane& other, float tolerance) const noexcept -> bool
+		{
+			auto p1 = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&Normal), D);
+			auto p2 = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&other.Normal), other.D);
+			return DirectX::XMPlaneNearEqual(p1, p2, DirectX::XMVectorReplicate(tolerance));
+		}
 	};
 
 	struct PlaneHash
 	{
-		auto operator()(const Plane& plane) const noexcept -> std::size_t
+		static auto operator()(const Plane& plane) noexcept -> std::size_t
 		{
 			std::size_t seed = 0;
 			for (float value : { plane.Normal.x, plane.Normal.y, plane.Normal.z, plane.D })
