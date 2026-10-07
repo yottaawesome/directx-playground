@@ -4,6 +4,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="BasicDXMath/BasicDXMath.vcxproj" Id="f3b5d405-8b6b-4102-b4e8-877d2e8196ec" />
+  <Project Path="CollisionDetection/CollisionDetection.vcxproj" Id="f30c9c6d-1fe4-413e-96f7-f45064a4851d" />
   <Project Path="PlanesAndMeshes/PlanesAndMeshes.vcxproj" Id="939378aa-5de8-4fbc-9810-7047066e572f" />
   <Project Path="Shared/Shared.vcxproj" Id="f73bec20-5f93-4361-84df-9325e2d46e31" />
 </Solution>

@@ -332,6 +332,7 @@ export namespace Win32
 		enum
 		{
 			Show = SW_SHOW,
+			Hide = SW_HIDE,
 			ShowDefault = SW_SHOWNORMAL
 		};
 	}

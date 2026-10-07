@@ -8,7 +8,7 @@ import std;
 import std.compat;
 import Win32;
 
-export namespace Log
+namespace
 {
 	class Console
 	{
@@ -37,7 +37,7 @@ export namespace Log
 		FILE* consoleOut = nullptr;
 	};
 
-	void Init()
+	void Init() noexcept
 	{
 		static auto console = Console{};
 	}

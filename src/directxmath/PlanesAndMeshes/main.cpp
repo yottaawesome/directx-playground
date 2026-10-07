@@ -110,8 +110,6 @@ void A(auto&&...args)
 
 auto wWinMain(Win32::HINSTANCE, Win32::HINSTANCE, Win32::LPWSTR, int) -> int
 {
-	A(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
 	auto triangles = std::vector{ LoadFile() };
 	Log::Info("Loaded {} triangles", triangles.size());
 
