@@ -1,70 +1,6 @@
 ﻿import std;
 import Shared;
 
-struct Triangle
-{
-	DirectX::XMFLOAT3 V0{0, 0, 0};
-	DirectX::XMFLOAT3 V1{0, 0, 0};
-	DirectX::XMFLOAT3 V2{0, 0, 0};
-
-	auto GetPlaneAsFloat3() const noexcept -> DirectX::XMFLOAT4
-	{
-		auto vector = DirectX::XMVECTOR{
-			DirectX::XMPlaneFromPoints(
-				DirectX::XMLoadFloat3(&V0),
-				DirectX::XMLoadFloat3(&V1),
-				DirectX::XMLoadFloat3(&V2)
-			)};
-		auto result = DirectX::XMFLOAT4{};
-		DirectX::XMStoreFloat4(&result, vector);
-		return result;
-	}
-
-	// XMVECTOR is fine here. XMVECTOR in class members
-	auto GetPlaneAsVector() const noexcept -> DirectX::XMVECTOR
-	{
-		return DirectX::XMPlaneFromPoints(
-			DirectX::XMLoadFloat3(&V0),
-			DirectX::XMLoadFloat3(&V1),
-			DirectX::XMLoadFloat3(&V2)
-		);
-	}
-
-	auto __vectorcall operator-=(DirectX::FXMVECTOR translation) -> Triangle&
-	{
-		auto v0 = DirectX::XMLoadFloat3(&V0);
-		auto v1 = DirectX::XMLoadFloat3(&V1);
-		auto v2 = DirectX::XMLoadFloat3(&V2);
-		v0 -= translation;
-		v1 -= translation;
-		v2 -= translation;
-		DirectX::XMStoreFloat3(&V0, v0);
-		DirectX::XMStoreFloat3(&V1, v1);
-		DirectX::XMStoreFloat3(&V2, v2);
-		return *this;
-	}
-
-	auto __vectorcall operator+=(DirectX::FXMVECTOR translation) -> Triangle&
-	{
-		auto v0 = DirectX::XMLoadFloat3(&V0);
-		auto v1 = DirectX::XMLoadFloat3(&V1);
-		auto v2 = DirectX::XMLoadFloat3(&V2);
-		v0 += translation;
-		v1 += translation;
-		v2 += translation;
-		DirectX::XMStoreFloat3(&V0, v0);
-		DirectX::XMStoreFloat3(&V1, v1);
-		DirectX::XMStoreFloat3(&V2, v2);
-		return *this;
-	}
-};
-
-struct Sphere
-{
-	DirectX::XMFLOAT3 Center{ 0, 0, 0 };
-	float Radius{ 0 };
-};
-
 namespace
 {
 	auto IsFinite(const DirectX::XMFLOAT3& point) noexcept -> bool
@@ -96,7 +32,7 @@ namespace
 	}
 }
 
-auto DetectCollision(const Triangle& triangle, const Sphere& sphere) -> bool
+auto DetectCollision(const Math::Triangle& triangle, const Math::Sphere& sphere) -> bool
 {
 	if (not std::isfinite(sphere.Radius) 
 		or not sphere.Radius < 0.0f 
@@ -161,8 +97,8 @@ auto DetectCollision(const Triangle& triangle, const Sphere& sphere) -> bool
 }
 
 auto DetectCollision(
-	const Triangle& triangle, 
-	const Sphere& sphere,
+	const Math::Triangle& triangle, 
+	const Math::Sphere& sphere,
 	const DirectX::XMFLOAT3& displacement
 ) -> bool
 {
@@ -288,8 +224,8 @@ namespace DetectCollisionTests
 		const auto expect = 
 			[](
 				std::string_view name, 
-				const Triangle& triangle,
-				const Sphere& sphere, 
+				const Math::Triangle& triangle,
+				const Math::Sphere& sphere, 
 				bool expected
 			)
 			{
@@ -299,35 +235,35 @@ namespace DetectCollisionTests
 					throw std::runtime_error(std::string(name) + ": unexpected collision result.");
 				}
 			};
-		const auto triangle = Triangle{
+		const auto triangle = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 1, 0, 0 },
 			DirectX::XMFLOAT3{ 0, 1, 0 }
 		};
-		const auto reversed = Triangle{ triangle.V0, triangle.V2, triangle.V1 };
+		const auto reversed = Math::Triangle{ triangle.V0, triangle.V2, triangle.V1 };
 		struct TestCase
 		{
 			std::string_view Name;
-			Sphere Ball;
+			Math::Sphere Ball;
 			bool Expected;
 		};
 		const auto cases = std::array{
-			TestCase{ "Face contact above", Sphere{ { 0.25f, 0.25f, 0.5f }, 0.5f }, true },
-			TestCase{ "Face contact below", Sphere{ { 0.25f, 0.25f, -0.5f }, 0.5f }, true },
-			TestCase{ "Face separation", Sphere{ { 0.25f, 0.25f, 0.51f }, 0.5f }, false },
-			TestCase{ "Infinite-plane false positive", Sphere{ { 100, 100, 0 }, 1 }, false },
-			TestCase{ "AB edge contact", Sphere{ { 0.5f, -0.5f, 0 }, 0.5f }, true },
-			TestCase{ "AB edge separation", Sphere{ { 0.5f, -0.51f, 0 }, 0.5f }, false },
-			TestCase{ "BC edge overlap", Sphere{ { 0.75f, 0.75f, 0 }, 0.4f }, true },
-			TestCase{ "BC edge separation", Sphere{ { 1, 1, 0 }, 0.5f }, false },
-			TestCase{ "CA edge contact", Sphere{ { -0.5f, 0.5f, 0 }, 0.5f }, true },
-			TestCase{ "A vertex contact", Sphere{ { -1, 0, 0 }, 1 }, true },
-			TestCase{ "A vertex separation", Sphere{ { -1.01f, 0, 0 }, 1 }, false },
-			TestCase{ "B vertex contact", Sphere{ { 2, 0, 0 }, 1 }, true },
-			TestCase{ "C vertex contact", Sphere{ { 0, 2, 0 }, 1 }, true },
-			TestCase{ "Zero-radius face contact", Sphere{ { 0.25f, 0.25f, 0 }, 0 }, true },
-			TestCase{ "Zero-radius separation", Sphere{ { 0.25f, 0.25f, 0.01f }, 0 }, false },
-			TestCase{ "Zero-radius vertex contact", Sphere{ { 0, 0, 0 }, 0 }, true }
+			TestCase{ "Face contact above", Math::Sphere{ { 0.25f, 0.25f, 0.5f }, 0.5f }, true },
+			TestCase{ "Face contact below", Math::Sphere{ { 0.25f, 0.25f, -0.5f }, 0.5f }, true },
+			TestCase{ "Face separation", Math::Sphere{ { 0.25f, 0.25f, 0.51f }, 0.5f }, false },
+			TestCase{ "Infinite-plane false positive", Math::Sphere{ { 100, 100, 0 }, 1 }, false },
+			TestCase{ "AB edge contact", Math::Sphere{ { 0.5f, -0.5f, 0 }, 0.5f }, true },
+			TestCase{ "AB edge separation", Math::Sphere{ { 0.5f, -0.51f, 0 }, 0.5f }, false },
+			TestCase{ "BC edge overlap", Math::Sphere{ { 0.75f, 0.75f, 0 }, 0.4f }, true },
+			TestCase{ "BC edge separation", Math::Sphere{ { 1, 1, 0 }, 0.5f }, false },
+			TestCase{ "CA edge contact", Math::Sphere{ { -0.5f, 0.5f, 0 }, 0.5f }, true },
+			TestCase{ "A vertex contact", Math::Sphere{ { -1, 0, 0 }, 1 }, true },
+			TestCase{ "A vertex separation", Math::Sphere{ { -1.01f, 0, 0 }, 1 }, false },
+			TestCase{ "B vertex contact", Math::Sphere{ { 2, 0, 0 }, 1 }, true },
+			TestCase{ "C vertex contact", Math::Sphere{ { 0, 2, 0 }, 1 }, true },
+			TestCase{ "Zero-radius face contact", Math::Sphere{ { 0.25f, 0.25f, 0 }, 0 }, true },
+			TestCase{ "Zero-radius separation", Math::Sphere{ { 0.25f, 0.25f, 0.01f }, 0 }, false },
+			TestCase{ "Zero-radius vertex contact", Math::Sphere{ { 0, 0, 0 }, 0 }, true }
 		};
 		for (const auto& test : cases)
 		{
@@ -335,78 +271,83 @@ namespace DetectCollisionTests
 			expect(test.Name, reversed, test.Ball, test.Expected);
 		}
 
-		const auto translated = Triangle{
+		const auto translated = Math::Triangle{
 			DirectX::XMFLOAT3{ 2, 3, 5 },
 			DirectX::XMFLOAT3{ 3, 3, 5 },
 			DirectX::XMFLOAT3{ 2, 4, 5 }
 		};
-		expect("Translated plane contact", translated, Sphere{ { 2.25f, 3.25f, 5.5f }, 0.5f }, true);
-		expect("Translated plane separation", translated, Sphere{ { 2.25f, 3.25f, 0 }, 0.5f }, false);
+		expect("Translated plane contact", translated, Math::Sphere{ { 2.25f, 3.25f, 5.5f }, 0.5f }, true);
+		expect("Translated plane separation", translated, Math::Sphere{ { 2.25f, 3.25f, 0 }, 0.5f }, false);
 
-		const auto tilted = Triangle{
+		const auto tilted = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 1, 1, 0 },
 			DirectX::XMFLOAT3{ 0, 1, 1 }
 		};
-		expect("Tilted face overlap", tilted, Sphere{ { 0.75f, 0, 0.75f }, 1 }, true);
-		expect("Tilted face separation", tilted, Sphere{ { 0.75f, 0, 0.75f }, 0.5f }, false);
-		expect("Tilted edge contact", tilted, Sphere{ { 0.5f, 0.5f, -0.5f }, 0.5f }, true);
-		expect("Tilted plane false positive", tilted, Sphere{ { 10, 20, 10 }, 1 }, false);
+		expect("Tilted face overlap", tilted, Math::Sphere{ { 0.75f, 0, 0.75f }, 1 }, true);
+		expect("Tilted face separation", tilted, Math::Sphere{ { 0.75f, 0, 0.75f }, 0.5f }, false);
+		expect("Tilted edge contact", tilted, Math::Sphere{ { 0.5f, 0.5f, -0.5f }, 0.5f }, true);
+		expect("Tilted plane false positive", tilted, Math::Sphere{ { 10, 20, 10 }, 1 }, false);
 
-		const auto line = Triangle{
+		const auto line = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 1, 0, 0 },
 			DirectX::XMFLOAT3{ 2, 0, 0 }
 		};
-		expect("Collinear contact", line, Sphere{ { 1, 0.5f, 0 }, 0.5f }, true);
-		expect("Collinear separation", line, Sphere{ { 1, 0.51f, 0 }, 0.5f }, false);
-		const auto repeatedVertex = Triangle{ line.V0, line.V0, line.V2 };
-		expect("Repeated vertex contact", repeatedVertex, Sphere{ { 1, 0.5f, 0 }, 0.5f }, true);
-		const auto point = Triangle{
+		expect("Collinear contact", line, Math::Sphere{ { 1, 0.5f, 0 }, 0.5f }, true);
+		expect("Collinear separation", line, Math::Sphere{ { 1, 0.51f, 0 }, 0.5f }, false);
+		const auto repeatedVertex = Math::Triangle{ line.V0, line.V0, line.V2 };
+		expect("Repeated vertex contact", repeatedVertex, Math::Sphere{ { 1, 0.5f, 0 }, 0.5f }, true);
+		const auto point = Math::Triangle{
 			DirectX::XMFLOAT3{ 2, 3, 4 },
 			DirectX::XMFLOAT3{ 2, 3, 4 },
 			DirectX::XMFLOAT3{ 2, 3, 4 }
 		};
-		expect("Point contact", point, Sphere{ { 2, 3, 5 }, 1 }, true);
-		expect("Point separation", point, Sphere{ { 2, 3, 5.01f }, 1 }, false);
+		expect("Point contact", point, Math::Sphere{ { 2, 3, 5 }, 1 }, true);
+		expect("Point separation", point, Math::Sphere{ { 2, 3, 5.01f }, 1 }, false);
 
-		const auto expectInvalid = [](const Triangle& shape, const Sphere& ball)
-		{
-			try
+		const auto expectInvalid = 
+			[](const Math::Triangle& shape, const Math::Sphere& ball)
 			{
-				DetectCollision(shape, ball);
-			}
-			catch (const std::invalid_argument&)
-			{
-				return;
-			}
-			throw std::runtime_error("Invalid collision input was accepted.");
-		};
-		expectInvalid(triangle, Sphere{ { 0, 0, 0 }, -1 });
-		expectInvalid(triangle, Sphere{ { 0, 0, 0 }, std::numeric_limits<float>::infinity() });
-		expectInvalid(triangle, Sphere{ { std::numeric_limits<float>::quiet_NaN(), 0, 0 }, 1 });
+				try
+				{
+					DetectCollision(shape, ball);
+				}
+				catch (const std::invalid_argument&)
+				{
+					return;
+				}
+				throw std::runtime_error("Invalid collision input was accepted.");
+			};
+		expectInvalid(triangle, Math::Sphere{ { 0, 0, 0 }, -1 });
+		expectInvalid(triangle, Math::Sphere{ { 0, 0, 0 }, std::numeric_limits<float>::infinity() });
+		expectInvalid(triangle, Math::Sphere{ { std::numeric_limits<float>::quiet_NaN(), 0, 0 }, 1 });
 		auto invalidTriangle = triangle;
 		invalidTriangle.V0.x = std::numeric_limits<float>::infinity();
-		expectInvalid(invalidTriangle, Sphere{ { 0, 0, 0 }, 1 });
+		expectInvalid(invalidTriangle, Math::Sphere{ { 0, 0, 0 }, 1 });
 	}
 
 	void TestSweptOverlaps()
 	{
-		const auto expect = [](std::string_view name, const Triangle& triangle,
-			const Sphere& sphere, const DirectX::XMFLOAT3& displacement, bool expected)
-		{
-			if (DetectCollision(triangle, sphere, displacement) != expected)
+		const auto expect = 
+			[](
+				std::string_view name, 
+				const Math::Triangle& triangle,
+				const Math::Sphere& sphere, 
+				const DirectX::XMFLOAT3& displacement, 
+				bool expected
+			)
 			{
-				throw std::runtime_error(std::string(name) + ": unexpected swept collision result.");
-			}
-		};
-		const auto triangle = Triangle{
+				if (DetectCollision(triangle, sphere, displacement) != expected)
+					throw std::runtime_error(std::string(name) + ": unexpected swept collision result.");
+			};
+		const auto triangle = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 1, 0, 0 },
 			DirectX::XMFLOAT3{ 0, 1, 0 }
 		};
-		const auto reversed = Triangle{ triangle.V0, triangle.V2, triangle.V1 };
-		const auto translated = Triangle{
+		const auto reversed = Math::Triangle{ triangle.V0, triangle.V2, triangle.V1 };
+		const auto translated = Math::Triangle{
 			DirectX::XMFLOAT3{ 2, 3, 5 },
 			DirectX::XMFLOAT3{ 3, 3, 5 },
 			DirectX::XMFLOAT3{ 2, 4, 5 }
@@ -414,36 +355,36 @@ namespace DetectCollisionTests
 		struct TestCase
 		{
 			std::string_view Name;
-			Sphere Ball;
+			Math::Sphere Ball;
 			DirectX::XMFLOAT3 Displacement;
 			bool Expected;
 		};
 		const auto cases = std::array{
-			TestCase{ "Face crossing above", Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, -4 }, true },
-			TestCase{ "Face crossing below", Sphere{ { 0.25f, 0.25f, -2 }, 0.25f }, { 0, 0, 4 }, true },
-			TestCase{ "Movement stops short", Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, -1 }, false },
-			TestCase{ "Final face contact", Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, -1.75f }, true },
-			TestCase{ "Moving away", Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, 4 }, false },
-			TestCase{ "Initial overlap", Sphere{ { 0.25f, 0.25f, 0 }, 0.25f }, { 0, 0, 4 }, true },
-			TestCase{ "Parallel face contact", Sphere{ { -1, 0.25f, 0.5f }, 0.5f }, { 3, 0, 0 }, true },
-			TestCase{ "Parallel face separation", Sphere{ { -1, 0.25f, 0.51f }, 0.5f }, { 3, 0, 0 }, false },
-			TestCase{ "Plane crossing outside", Sphere{ { 2, 2, 2 }, 0.25f }, { 0, 0, -4 }, false },
-			TestCase{ "AB edge crossing", Sphere{ { 0.5f, -0.2f, 2 }, 0.25f }, { 0, 0, -4 }, true },
-			TestCase{ "AB edge miss", Sphere{ { 0.5f, -0.26f, 2 }, 0.25f }, { 0, 0, -4 }, false },
-			TestCase{ "BC edge crossing", Sphere{ { 0.75f, 0.75f, 2 }, 0.4f }, { 0, 0, -4 }, true },
-			TestCase{ "BC edge miss", Sphere{ { 0.75f, 0.75f, 2 }, 0.3f }, { 0, 0, -4 }, false },
-			TestCase{ "CA edge crossing", Sphere{ { -0.2f, 0.5f, 2 }, 0.25f }, { 0, 0, -4 }, true },
-			TestCase{ "A vertex tangency", Sphere{ { -0.5f, 0, 2 }, 0.5f }, { 0, 0, -4 }, true },
-			TestCase{ "A vertex miss", Sphere{ { -0.51f, 0, 2 }, 0.5f }, { 0, 0, -4 }, false },
-			TestCase{ "B vertex tangency", Sphere{ { 1.5f, 0, 2 }, 0.5f }, { 0, 0, -4 }, true },
-			TestCase{ "C vertex tangency", Sphere{ { 0, 1.5f, 2 }, 0.5f }, { 0, 0, -4 }, true },
-			TestCase{ "Zero-radius face crossing", Sphere{ { 0.25f, 0.25f, 2 }, 0 }, { 0, 0, -4 }, true },
-			TestCase{ "Zero-radius edge crossing", Sphere{ { 0.5f, 0, 2 }, 0 }, { 0, 0, -4 }, true },
-			TestCase{ "Zero-radius vertex crossing", Sphere{ { 0, 0, 2 }, 0 }, { 0, 0, -4 }, true },
-			TestCase{ "Zero-radius miss", Sphere{ { 1, 1, 2 }, 0 }, { 0, 0, -4 }, false },
-			TestCase{ "Coplanar crossing", Sphere{ { -1, 0.25f, 0 }, 0 }, { 3, 0, 0 }, true },
-			TestCase{ "Coplanar miss", Sphere{ { -1, 2, 0 }, 0.25f }, { 3, 0, 0 }, false },
-			TestCase{ "Parallel edge tangency", Sphere{ { -2, -0.5f, 0 }, 0.5f }, { 5, 0, 0 }, true }
+			TestCase{ "Face crossing above", Math::Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, -4 }, true },
+			TestCase{ "Face crossing below", Math::Sphere{ { 0.25f, 0.25f, -2 }, 0.25f }, { 0, 0, 4 }, true },
+			TestCase{ "Movement stops short", Math::Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, -1 }, false },
+			TestCase{ "Final face contact", Math::Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, -1.75f }, true },
+			TestCase{ "Moving away", Math::Sphere{ { 0.25f, 0.25f, 2 }, 0.25f }, { 0, 0, 4 }, false },
+			TestCase{ "Initial overlap", Math::Sphere{ { 0.25f, 0.25f, 0 }, 0.25f }, { 0, 0, 4 }, true },
+			TestCase{ "Parallel face contact", Math::Sphere{ { -1, 0.25f, 0.5f }, 0.5f }, { 3, 0, 0 }, true },
+			TestCase{ "Parallel face separation", Math::Sphere{ { -1, 0.25f, 0.51f }, 0.5f }, { 3, 0, 0 }, false },
+			TestCase{ "Plane crossing outside", Math::Sphere{ { 2, 2, 2 }, 0.25f }, { 0, 0, -4 }, false },
+			TestCase{ "AB edge crossing", Math::Sphere{ { 0.5f, -0.2f, 2 }, 0.25f }, { 0, 0, -4 }, true },
+			TestCase{ "AB edge miss", Math::Sphere{ { 0.5f, -0.26f, 2 }, 0.25f }, { 0, 0, -4 }, false },
+			TestCase{ "BC edge crossing", Math::Sphere{ { 0.75f, 0.75f, 2 }, 0.4f }, { 0, 0, -4 }, true },
+			TestCase{ "BC edge miss", Math::Sphere{ { 0.75f, 0.75f, 2 }, 0.3f }, { 0, 0, -4 }, false },
+			TestCase{ "CA edge crossing", Math::Sphere{ { -0.2f, 0.5f, 2 }, 0.25f }, { 0, 0, -4 }, true },
+			TestCase{ "A vertex tangency", Math::Sphere{ { -0.5f, 0, 2 }, 0.5f }, { 0, 0, -4 }, true },
+			TestCase{ "A vertex miss", Math::Sphere{ { -0.51f, 0, 2 }, 0.5f }, { 0, 0, -4 }, false },
+			TestCase{ "B vertex tangency", Math::Sphere{ { 1.5f, 0, 2 }, 0.5f }, { 0, 0, -4 }, true },
+			TestCase{ "C vertex tangency", Math::Sphere{ { 0, 1.5f, 2 }, 0.5f }, { 0, 0, -4 }, true },
+			TestCase{ "Zero-radius face crossing", Math::Sphere{ { 0.25f, 0.25f, 2 }, 0 }, { 0, 0, -4 }, true },
+			TestCase{ "Zero-radius edge crossing", Math::Sphere{ { 0.5f, 0, 2 }, 0 }, { 0, 0, -4 }, true },
+			TestCase{ "Zero-radius vertex crossing", Math::Sphere{ { 0, 0, 2 }, 0 }, { 0, 0, -4 }, true },
+			TestCase{ "Zero-radius miss", Math::Sphere{ { 1, 1, 2 }, 0 }, { 0, 0, -4 }, false },
+			TestCase{ "Coplanar crossing", Math::Sphere{ { -1, 0.25f, 0 }, 0 }, { 3, 0, 0 }, true },
+			TestCase{ "Coplanar miss", Math::Sphere{ { -1, 2, 0 }, 0.25f }, { 3, 0, 0 }, false },
+			TestCase{ "Parallel edge tangency", Math::Sphere{ { -2, -0.5f, 0 }, 0.5f }, { 5, 0, 0 }, true }
 		};
 		for (const auto& test : cases)
 		{
@@ -456,40 +397,40 @@ namespace DetectCollisionTests
 			expect(test.Name, translated, shifted, test.Displacement, test.Expected);
 		}
 
-		const auto tilted = Triangle{
+		const auto tilted = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 1, 1, 0 },
 			DirectX::XMFLOAT3{ 0, 1, 1 }
 		};
-		expect("Tilted face crossing", tilted, Sphere{ { 0.75f, 0, 0.75f }, 0.1f }, { -1, 1, -1 }, true);
-		const auto line = Triangle{
+		expect("Tilted face crossing", tilted, Math::Sphere{ { 0.75f, 0, 0.75f }, 0.1f }, { -1, 1, -1 }, true);
+		const auto line = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 1, 0, 0 },
 			DirectX::XMFLOAT3{ 2, 0, 0 }
 		};
-		expect("Swept collinear contact", line, Sphere{ { 1, 0.5f, 2 }, 0.5f }, { 0, 0, -4 }, true);
-		expect("Swept collinear miss", line, Sphere{ { 1, 0.51f, 2 }, 0.5f }, { 0, 0, -4 }, false);
-		expect("Edge extension miss", line, Sphere{ { -1, -1, 0 }, 0.5f }, { 0, 2, 0 }, false);
-		expect("Edge endpoint tangency", line, Sphere{ { -1, -1, 0 }, 1 }, { 0, 2, 0 }, true);
-		const auto repeatedVertex = Triangle{ line.V0, line.V0, line.V2 };
-		expect("Swept repeated vertex", repeatedVertex, Sphere{ { 1, 0.5f, 2 }, 0.5f }, { 0, 0, -4 }, true);
-		const auto almostParallel = Triangle{
+		expect("Swept collinear contact", line, Math::Sphere{ { 1, 0.5f, 2 }, 0.5f }, { 0, 0, -4 }, true);
+		expect("Swept collinear miss", line, Math::Sphere{ { 1, 0.51f, 2 }, 0.5f }, { 0, 0, -4 }, false);
+		expect("Edge extension miss", line, Math::Sphere{ { -1, -1, 0 }, 0.5f }, { 0, 2, 0 }, false);
+		expect("Edge endpoint tangency", line, Math::Sphere{ { -1, -1, 0 }, 1 }, { 0, 2, 0 }, true);
+		const auto repeatedVertex = Math::Triangle{ line.V0, line.V0, line.V2 };
+		expect("Swept repeated vertex", repeatedVertex, Math::Sphere{ { 1, 0.5f, 2 }, 0.5f }, { 0, 0, -4 }, true);
+		const auto almostParallel = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 10000, 1, 0 },
 			DirectX::XMFLOAT3{ 20000, 2, 0 }
 		};
-		expect("Almost-parallel crossing", almostParallel, Sphere{ { 0, 0.5f, 0 }, 0 },
+		expect("Almost-parallel crossing", almostParallel, Math::Sphere{ { 0, 0.5f, 0 }, 0 },
 			{ 10000, 0, 0 }, true);
-		const auto point = Triangle{
+		const auto point = Math::Triangle{
 			DirectX::XMFLOAT3{ 2, 3, 4 },
 			DirectX::XMFLOAT3{ 2, 3, 4 },
 			DirectX::XMFLOAT3{ 2, 3, 4 }
 		};
-		expect("Swept point crossing", point, Sphere{ { 2, 3, 2 }, 0 }, { 0, 0, 4 }, true);
-		expect("Swept point tangency", point, Sphere{ { 2.5f, 3, 2 }, 0.5f }, { 0, 0, 4 }, true);
-		expect("Swept point miss", point, Sphere{ { 2.51f, 3, 2 }, 0.5f }, { 0, 0, 4 }, false);
+		expect("Swept point crossing", point, Math::Sphere{ { 2, 3, 2 }, 0 }, { 0, 0, 4 }, true);
+		expect("Swept point tangency", point, Math::Sphere{ { 2.5f, 3, 2 }, 0.5f }, { 0, 0, 4 }, true);
+		expect("Swept point miss", point, Math::Sphere{ { 2.51f, 3, 2 }, 0.5f }, { 0, 0, 4 }, false);
 
-		const auto overlapping = Sphere{ { 0.25f, 0.25f, 0 }, 1 };
+		const auto overlapping = Math::Sphere{ { 0.25f, 0.25f, 0 }, 1 };
 		for (const auto& invalid : std::array{
 			DirectX::XMFLOAT3{ std::numeric_limits<float>::quiet_NaN(), 0, 0 },
 			DirectX::XMFLOAT3{ 0, std::numeric_limits<float>::infinity(), 0 },
@@ -510,12 +451,12 @@ namespace DetectCollisionTests
 
 	void TestOneHit()
 	{
-		auto triangle = Triangle{
+		auto triangle = Math::Triangle{
 			DirectX::XMFLOAT3{ 0, 0, 0 },
 			DirectX::XMFLOAT3{ 1, 0, 0 },
 			DirectX::XMFLOAT3{ 0, 1, 0 }
 		};
-		auto sphere = Sphere{
+		auto sphere = Math::Sphere{
 			DirectX::XMFLOAT3{ 0.5f, 0.5f, -1.0f },
 			1.0f
 		};

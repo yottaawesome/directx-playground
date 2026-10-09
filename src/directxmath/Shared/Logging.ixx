@@ -8,7 +8,7 @@ import std;
 import std.compat;
 import Win32;
 
-namespace
+namespace Log::Details
 {
 	class Console
 	{
@@ -48,21 +48,21 @@ export namespace Log
 	template<typename...TArgs>
 	void Info(std::format_string<TArgs...> message, TArgs&&... args)
 	{
-		Init();
+		Details::Init();
 		auto now = std::chrono::system_clock::now();
 		std::println("[{}] \x1b[32m[INFO]\x1b[0m {}", std::chrono::zoned_time{ std::chrono::current_zone(), now }, std::format(message, std::forward<TArgs>(args)...));
 	}
 	template<typename...TArgs>
 	void Warn(std::format_string<TArgs...> message, TArgs&&... args)
 	{
-		Init();
+		Details::Init();
 		auto now = std::chrono::system_clock::now();
 		std::println("[{}] \x1b[33m[WARNING]\x1b[0m {}", std::chrono::zoned_time{ std::chrono::current_zone(), now }, std::format(message, std::forward<TArgs>(args)...));
 	}
 	template<typename...TArgs>
 	void Error(std::format_string<TArgs...> message, TArgs&&... args)
 	{
-		Init();
+		Details::Init();
 		auto now = std::chrono::system_clock::now();
 		std::println("[{}] \x1b[31m[ERROR]\x1b[0m {}", std::chrono::zoned_time{ std::chrono::current_zone(), now }, std::format(message, std::forward<TArgs>(args)...));
 	}

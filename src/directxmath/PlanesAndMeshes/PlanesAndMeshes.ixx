@@ -2,84 +2,102 @@ export module PlanesAndMeshes;
 import std;
 import Shared;
 
-export namespace PlanesAndMeshes::Physics
+export namespace PlanesAndMeshes
 {
-	struct Plane
+	[[nodiscard]]
+	auto LoadFile() -> std::vector<Math::Triangle>
 	{
-		Plane() = default;
-		Plane(const DirectX::XMFLOAT3& normal, float d) noexcept
-			: Normal{ normal }, D{ d }
-		{}
-		Plane(const DirectX::XMVECTOR& normal, float d) noexcept
-		{
-			DirectX::XMStoreFloat3(&Normal, normal);
-			D = d;
-		}
-		DirectX::XMFLOAT3 Normal{ 0.0f, 0.0f, 0.0f };
-		float D = 0;
+		constexpr auto FilePath = "mesh.txt";
 
-		constexpr auto operator==(const Plane& other) const noexcept -> bool
-		{
-			auto p1 = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&Normal), D);
-			auto p2 = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&other.Normal), other.D);
-			return DirectX::XMPlaneEqual(p1, p2);
-		}
+		auto inputFile = std::ifstream{ FilePath };
+		if (inputFile.fail())
+			throw std::runtime_error{ std::format("Failed to open {}", FilePath) };
 
-		auto IsNearEqual(const Plane& other, float tolerance) const noexcept -> bool
+		struct ReadVertices {};
+		struct ReadIndices {};
+		auto state = Util::Variant<ReadVertices, ReadIndices>{ };
+		auto line = std::string{};
+		auto float3s = std::vector<DirectX::XMFLOAT3>{};
+		auto indices = std::vector<size_t>{};
+		while (std::getline(inputFile, line))
 		{
-			auto p1 = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&Normal), D);
-			auto p2 = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&other.Normal), other.D);
-			return DirectX::XMPlaneNearEqual(p1, p2, DirectX::XMVectorReplicate(tolerance));
-		}
-	};
-
-	struct PlaneHash
-	{
-		static auto operator()(const Plane& plane) noexcept -> std::size_t
-		{
-			std::size_t seed = 0;
-			for (float value : { plane.Normal.x, plane.Normal.y, plane.Normal.z, plane.D })
+			if (line.empty())
 			{
-				seed ^= std::hash<float>{}(value)+0x9e3779b9u
-					+ (seed << 6) + (seed >> 2);
+				continue;
 			}
-			return seed;
-		}
-	};
+			else if (line.starts_with("Vertices:"))
+			{
+				state = ReadVertices{};
+				continue;
+			}
+			else if (line.starts_with("Indices:"))
+			{
+				state = ReadIndices{};
+				continue;
+			}
 
-	struct Triangle
+			state(
+				[&](ReadVertices)
+				{
+					auto parts = String::TokeniseString(line, " ");
+					if (parts.size() != 3)
+						throw std::runtime_error{ std::format("Expected 3 values, got {}", parts.size()) };
+					float3s.emplace_back(std::stof(parts[0]), std::stof(parts[1]), std::stof(parts[2]));
+				},
+				[&](ReadIndices)
+				{
+					auto index = size_t{};
+					auto [end, error] = std::from_chars(line.data(), line.data() + line.size(), index);
+					if (error != std::errc{} or end != line.data() + line.size())
+						throw std::runtime_error{ std::format("Invalid mesh index '{}'", line) };
+					if (index >= float3s.size())
+						throw std::runtime_error{ std::format("Mesh index {} is out of range for {} vertices", index, float3s.size()) };
+					indices.push_back(index);
+				});
+		}
+
+		if (indices.size() % 3 != 0)
+			throw std::runtime_error{ std::format("Expected index count to be divisible by 3, got {}", indices.size()) };
+
+		auto triples = indices | std::ranges::views::chunk(3);
+		auto returnValue = std::vector<Math::Triangle>{};
+		returnValue.reserve(indices.size() / 3);
+		for (auto chunk : triples)
+		{
+			returnValue.push_back(Math::Triangle{ float3s[chunk[0]], float3s[chunk[1]], float3s[chunk[2]] });
+		}
+
+		return returnValue;
+	}
+
+	using PlaneGroup = std::pair<Math::Plane, std::vector<Math::Triangle>>;
+
+	[[nodiscard]]
+	auto GroupTrianglesByPlane(const std::vector<Math::Triangle>& triangles) -> std::vector<PlaneGroup>
 	{
-		DirectX::XMFLOAT3 V0 = { 0.0f, 0.0f, 0.0f };
-		DirectX::XMFLOAT3 V1 = { 0.0f, 0.0f, 0.0f };
-		DirectX::XMFLOAT3 V2 = { 0.0f, 0.0f, 0.0f };
-
-		auto GetPlane() const noexcept -> Plane
+		constexpr auto PlaneTolerance = 1e-5f;
+		auto planeGroups = std::vector<PlaneGroup>{};
+		for (const Math::Triangle& triangle : triangles)
 		{
-			auto v0 = DirectX::XMLoadFloat3(&V0);
-			auto v1 = DirectX::XMLoadFloat3(&V1);
-			auto v2 = DirectX::XMLoadFloat3(&V2);
-			auto normal = DirectX::XMPlaneFromPoints(v0, v1, v2);
-			float d = -DirectX::XMVectorGetW(normal);
-			return Plane{ normal, d };
+			auto plane = triangle.GetPlane();
+			// Normalize +0/-0 to 0 
+			if (plane.Normal.x == 0.0f)
+				plane.Normal.x = 0;
+			if (plane.Normal.y == 0.0f)
+				plane.Normal.y = 0;
+			if (plane.Normal.z == 0.0f)
+				plane.Normal.z = 0;
+
+			// Tolerance matching is not transitive; keep each group's first plane as its representative.
+			auto group = std::ranges::find_if(
+				planeGroups,
+				[&](const PlaneGroup& candidate) { return candidate.first.IsNearEqual(plane, PlaneTolerance); });
+			if (group != planeGroups.end())
+				group->second.push_back(triangle);
+			else
+				planeGroups.emplace_back(plane, std::vector<Math::Triangle>{ triangle });
 		}
 
-		auto GetNormalAsVector() const noexcept -> DirectX::XMVECTOR
-		{
-			auto v0 = DirectX::XMLoadFloat3(&V0);
-			auto v1 = DirectX::XMLoadFloat3(&V1);
-			auto v2 = DirectX::XMLoadFloat3(&V2);
-			return DirectX::XMPlaneFromPoints(v0, v1, v2);
-		}
-
-		auto GetNormalAsFloat3() const noexcept -> DirectX::XMFLOAT3
-		{
-			auto v0 = DirectX::XMLoadFloat3(&V0);
-			auto v1 = DirectX::XMLoadFloat3(&V1);
-			auto v2 = DirectX::XMLoadFloat3(&V2);
-			auto normal = DirectX::XMPlaneFromPoints(v0, v1, v2);
-			auto result = DirectX::XMFLOAT3{};
-			DirectX::XMStoreFloat3(&result, normal);
-			return result;
-		}
-	};
+		return planeGroups;
+	}
 }
