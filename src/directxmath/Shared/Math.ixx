@@ -13,17 +13,19 @@ export namespace Math
 
 	struct Plane
 	{
+		DirectX::XMFLOAT3 Normal{ 0.0f, 0.0f, 0.0f };
+		float D = 0;
+
 		Plane() = default;
 		Plane(const DirectX::XMFLOAT3& normal, float d) noexcept
 			: Normal{ normal }, D{ d }
 		{}
-		Plane(const DirectX::XMVECTOR& normal) noexcept
+		
+		Plane(DirectX::XMVECTOR normal) noexcept
 		{
 			DirectX::XMStoreFloat3(&Normal, normal);
 			D = DirectX::XMVectorGetW(normal);
 		}
-		DirectX::XMFLOAT3 Normal{ 0.0f, 0.0f, 0.0f };
-		float D = 0;
 
 		constexpr auto operator==(const Plane& other) const noexcept -> bool
 		{
