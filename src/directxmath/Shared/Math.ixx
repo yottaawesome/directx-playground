@@ -17,10 +17,10 @@ export namespace Math
 		Plane(const DirectX::XMFLOAT3& normal, float d) noexcept
 			: Normal{ normal }, D{ d }
 		{}
-		Plane(const DirectX::XMVECTOR& normal, float d) noexcept
+		Plane(const DirectX::XMVECTOR& normal) noexcept
 		{
 			DirectX::XMStoreFloat3(&Normal, normal);
-			D = d;
+			D = DirectX::XMVectorGetW(normal);
 		}
 		DirectX::XMFLOAT3 Normal{ 0.0f, 0.0f, 0.0f };
 		float D = 0;
