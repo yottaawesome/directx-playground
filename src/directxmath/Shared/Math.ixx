@@ -230,4 +230,15 @@ export namespace Math
 			return *this;
 		}
 	};
+
+	/*
+	* Sphere triangle collision
+	* 1. Translate the triangle to the sphere's local space by 
+		subtracting the sphere's center from each vertex of the triangle.
+	* 2. Compute the plane of the triangle using the cross product of two edges.
+	* 3. Project the sphere's center onto the plane of the triangle. This is
+	*	done by first normalizing the plane's normal vector, the scaling the 
+	*	normal by the adjusted D value.
+	* 4. Check if the projected point is inside the triangle using barycentric coordinates.
+	*/
 }
