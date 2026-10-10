@@ -5,10 +5,64 @@ import DirectXMath;
 
 export namespace Math
 {
+	using Quaternion = DirectX::XMFLOAT4;
+
+	auto IsFinite(const DirectX::XMFLOAT3& point) noexcept -> bool
+	{
+		return std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z);
+	}
+
+	auto Dot3(const DirectX::XMVECTOR& lhs, const DirectX::XMVECTOR& rhs) noexcept -> float
+	{
+		return DirectX::XMVectorGetX(DirectX::XMVector3Dot(lhs, rhs));
+	}
+
+	auto NearEqual(float a, float b, float tolerance = 0.00001f) noexcept -> bool
+	{
+		return std::fabs(a - b) <= tolerance;
+	}
+}
+
+export namespace Math
+{
 	struct Sphere
 	{
 		DirectX::XMFLOAT3 Center{ 0, 0, 0 };
 		float Radius{ 0 };
+	};
+
+	struct SphereCompact
+	{
+		DirectX::XMFLOAT4 Data{ 0, 0, 0, 0 };
+		DirectX::XMFLOAT4 Orientation{ 0, 0, 0, 1 };
+
+		auto Rotate(float x, float y, float z) const noexcept -> SphereCompact
+		{
+			Quaternion rotation{ x, y, z, 1 };
+
+			return SphereCompact{
+				Data,
+				DirectX::XMFLOAT4{
+					Orientation.x + rotation.x,
+					Orientation.y + rotation.y,
+					Orientation.z + rotation.z,
+					Orientation.w + rotation.w
+				}
+			};
+		}
+
+		auto GetCenter() const noexcept -> DirectX::XMFLOAT3
+		{
+			return DirectX::XMFLOAT3{ Data.x, Data.y, Data.z };
+		}
+		auto GetRadius() const noexcept -> float
+		{
+			return Data.w;
+		}
+		auto Translate(const DirectX::XMFLOAT3& offset) const noexcept -> SphereCompact
+		{
+			return SphereCompact{ DirectX::XMFLOAT4{ Data.x + offset.x, Data.y + offset.y, Data.z + offset.z, Data.w } };
+		}
 	};
 
 	struct Plane
@@ -25,6 +79,34 @@ export namespace Math
 		{
 			DirectX::XMStoreFloat3(&Normal, normal);
 			D = DirectX::XMVectorGetW(normal);
+		}
+
+		auto IsNormalized() const noexcept -> bool
+		{
+			auto normalVector = DirectX::XMLoadFloat3(&Normal);
+			auto lengthSquared = DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(normalVector));
+			if (lengthSquared == 0.f)
+				return false;
+			return NearEqual(lengthSquared, 1.f);
+		}
+
+		auto ToNormalizedPlane() const -> Plane
+		{
+			auto normalVector = DirectX::XMLoadFloat3(&Normal);
+			auto length = DirectX::XMVector3Length(normalVector);
+			if (DirectX::XMVectorGetX(length) == 0.f)
+				throw std::runtime_error{ "Cannot normalize a plane with a zero-length normal." };
+
+			if (IsNormalized())
+				return *this;
+
+			auto normalizedNormal = DirectX::XMVectorDivide(normalVector, length);
+			auto d = D / DirectX::XMVectorGetX(length);
+			auto dVector = DirectX::XMVectorSetW(normalizedNormal, d);
+
+			auto normalizedNormalFloat3 = DirectX::XMFLOAT3{};
+			DirectX::XMStoreFloat3(&normalizedNormalFloat3, normalizedNormal);
+			return Plane{ normalizedNormalFloat3, d };
 		}
 
 		constexpr auto operator==(const Plane& other) const noexcept -> bool

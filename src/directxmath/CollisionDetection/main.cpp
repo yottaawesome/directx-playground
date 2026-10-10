@@ -1,23 +1,13 @@
 ﻿import std;
 import Shared;
 
-namespace
+namespace Math
 {
-	auto IsFinite(const DirectX::XMFLOAT3& point) noexcept -> bool
-	{
-		return std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z);
-	}
-
-	auto Dot3(const DirectX::XMVECTOR& lhs, const DirectX::XMVECTOR& rhs) noexcept -> float
-	{
-		return DirectX::XMVectorGetX(DirectX::XMVector3Dot(lhs, rhs));
-	}
-
 	auto IsProjectionInsideTriangle(
 		const DirectX::XMVECTOR& point,
 		const DirectX::XMVECTOR& a, 
 		const DirectX::XMVECTOR& b,
-		const DirectX::XMVECTOR& c, 
+		const DirectX::XMVECTOR& c,
 		const DirectX::XMVECTOR& normal
 	) noexcept -> bool
 	{
@@ -36,10 +26,10 @@ auto DetectCollision(const Math::Triangle& triangle, const Math::Sphere& sphere)
 {
 	if (not std::isfinite(sphere.Radius) 
 		or not sphere.Radius < 0.0f 
-		or not IsFinite(sphere.Center) 
-		or not IsFinite(triangle.V0) 
-		or not IsFinite(triangle.V1) 
-		or not IsFinite(triangle.V2))
+		or not Math::IsFinite(sphere.Center) 
+		or not Math::IsFinite(triangle.V0) 
+		or not Math::IsFinite(triangle.V1) 
+		or not Math::IsFinite(triangle.V2))
 	{
 		throw std::invalid_argument{"Sphere-triangle collision requires finite coordinates and a finite, nonnegative radius."};
 	}
@@ -54,19 +44,19 @@ auto DetectCollision(const Math::Triangle& triangle, const Math::Sphere& sphere)
 	const auto ab = b - a;
 	const auto normal = DirectX::XMVector3Cross(ab, c - a);
 	// 𝐯⋅𝐯 = ‖𝐯‖^2
-	const auto normalSquared = Dot3(normal, normal);
+	const auto normalSquared = Math::Dot3(normal, normal);
 	if (normalSquared > 0.0f)
 	{
 		// The plane equation is N dot (X - A) = 0, with N = (B - A) cross (C - A).
 		// Project center P onto it: Q = P - N * (N dot (P - A)) / (N dot N).
 		// N need not be normalized, and using P - A accounts for the plane's offset.
-		const auto projection = center - DirectX::XMVectorScale(normal, Dot3(normal, center - a) / normalSquared);
+		const auto projection = center - DirectX::XMVectorScale(normal, Math::Dot3(normal, center - a) / normalSquared);
 
-		if (IsProjectionInsideTriangle(projection, a, b, c, normal))
+		if (Math::IsProjectionInsideTriangle(projection, a, b, c, normal))
 		{
 			// An interior projection is the closest point on the whole triangle.
 			const auto separation = center - projection;
-			return Dot3(separation, separation) <= radiusSquared;
+			return Math::Dot3(separation, separation) <= radiusSquared;
 		}
 	}
 
@@ -76,17 +66,17 @@ auto DetectCollision(const Math::Triangle& triangle, const Math::Sphere& sphere)
 		[&](const DirectX::XMVECTOR& start, const DirectX::XMVECTOR& end)
 		{
 			const auto edge = end - start;
-			const auto edgeSquared = Dot3(edge, edge);
+			const auto edgeSquared = Math::Dot3(edge, edge);
 
 			// Minimize ||P - (start + t * edge)||^2 for 0 <= t <= 1:
 			// t = clamp(((P - start) dot edge) / (edge dot edge), 0, 1).
 			// Clamping includes the endpoints; a zero-length segment is just start.
 			const auto t = edgeSquared > 0.0f 
-				? std::clamp(Dot3(center - start, edge) / edgeSquared, 0.0f, 1.0f) 
+				? std::clamp(Math::Dot3(center - start, edge) / edgeSquared, 0.0f, 1.0f) 
 				: 0.0f;
 			const auto closestPoint = start + DirectX::XMVectorScale(edge, t);
 			const auto separation = center - closestPoint;
-			return Dot3(separation, separation);
+			return Math::Dot3(separation, separation);
 		};
 	const auto distanceSquared = std::min({
 		segmentDistanceSquared(a, b),
@@ -102,7 +92,7 @@ auto DetectCollision(
 	const DirectX::XMFLOAT3& displacement
 ) -> bool
 {
-	if (not IsFinite(displacement))
+	if (not Math::IsFinite(displacement))
 		throw std::invalid_argument("Sphere displacement must contain finite coordinates.");
 
 	// The vector is a full displacement, not a unit direction: P(t) = P0 + t * D,
@@ -117,7 +107,7 @@ auto DetectCollision(
 
 	const auto center = DirectX::XMLoadFloat3(&sphere.Center);
 	const auto movement = DirectX::XMLoadFloat3(&displacement);
-	const auto movementSquared = Dot3(movement, movement);
+	const auto movementSquared = Math::Dot3(movement, movement);
 	if (movementSquared == 0.0f)
 		// With no movement, the initial static result is the entire result.
 		return false;
@@ -132,18 +122,18 @@ auto DetectCollision(
 	const auto c = DirectX::XMLoadFloat3(&triangle.V2);
 	const auto radiusSquared = sphere.Radius * sphere.Radius;
 	const auto normal = DirectX::XMVector3Cross(b - a, c - a);
-	const auto normalSquared = Dot3(normal, normal);
-	const auto normalMovement = Dot3(normal, movement);
+	const auto normalSquared = Math::Dot3(normal, normal);
+	const auto normalMovement = Math::Dot3(normal, movement);
 	if (normalSquared > 0.0f and normalMovement != 0.0f)
 	{
 		// A center-path crossing of the triangle itself has distance zero.
 		// Solve N dot (P0 + t * D - A) = 0:
 		// t = (N dot (A - P0)) / (N dot D), restricted to the finite path [0, 1].
-		const auto t = Dot3(normal, a - center) / normalMovement;
+		const auto t = Math::Dot3(normal, a - center) / normalMovement;
 		if (t >= 0.0f and t <= 1.0f)
 		{
 			const auto crossing = center + DirectX::XMVectorScale(movement, t);
-			if (IsProjectionInsideTriangle(crossing, a, b, c, normal))
+			if (Math::IsProjectionInsideTriangle(crossing, a, b, c, normal))
 				return true;
 		}
 	}
@@ -157,8 +147,8 @@ auto DetectCollision(
 		{
 			const auto edge = end - start;
 			const auto offset = center - start;
-			const auto edgeSquared = Dot3(edge, edge);
-			const auto movementDotOffset = Dot3(movement, offset);
+			const auto edgeSquared = Math::Dot3(edge, edge);
+			const auto movementDotOffset = Math::Dot3(movement, offset);
 			auto t = 0.0f;
 			auto u = 0.0f;
 			if (edgeSquared == 0.0f)
@@ -168,8 +158,8 @@ auto DetectCollision(
 			}
 			else
 			{
-				const auto movementDotEdge = Dot3(movement, edge);
-				const auto edgeDotOffset = Dot3(edge, offset);
+				const auto movementDotEdge = Math::Dot3(movement, edge);
+				const auto edgeDotOffset = Math::Dot3(edge, offset);
 
 				// Minimize ||R + t * D - u * E||^2, where R = P0 - start.
 				// With a = D dot D, b = D dot E, c = E dot E,
@@ -177,13 +167,13 @@ auto DetectCollision(
 				// a*t - b*u = -d and c*u - b*t = e.
 				// Hence t = (b*e - c*d) / (a*c - b*b).
 				const auto cross = DirectX::XMVector3Cross(movement, edge);
-				const auto denominator = Dot3(cross, cross);
+				const auto denominator = Math::Dot3(cross, cross);
 				if (denominator > 0.0f)
 				{
 					// Equivalent cross products avoid subtracting nearly equal a*c
 					// and b*b for almost-parallel segments:
 					// t = ((E cross R) dot (D cross E)) / ||D cross E||^2.
-					t = std::clamp(Dot3(DirectX::XMVector3Cross(edge, offset), cross) /
+					t = std::clamp(Math::Dot3(DirectX::XMVector3Cross(edge, offset), cross) /
 						denominator, 0.0f, 1.0f);
 				}
 
@@ -207,7 +197,7 @@ auto DetectCollision(
 				offset 
 				+ DirectX::XMVectorScale(movement, t) 
 				- DirectX::XMVectorScale(edge, u);
-			return Dot3(separation, separation);
+			return Math::Dot3(separation, separation);
 		};
 	const auto distanceSquared = std::min({
 		segmentDistanceSquared(a, b),
