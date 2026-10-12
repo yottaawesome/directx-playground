@@ -302,8 +302,8 @@ export namespace Math
 // Triangles
 export namespace Math
 {
-	// If the barycentric coordinates are all in the range [0, 1] and sum to 1, then the point is inside the triangle.
-	// If the point lies outside the triangle, the barycentric coordinates will be negative or greater than 1.
+	// A limitation is here is that it return the projected points on the plane if the
+	// point is not in the triangle.
 	auto PointToBarycentricCoordinates(
 		const DirectX::XMFLOAT3& point,
 		const DirectX::XMFLOAT3& a,
@@ -326,6 +326,78 @@ export namespace Math
 		auto w = (d00 * d21 - d01 * d20) / denom;
 		auto u = 1.0f - v - w;
 		return { u, v, w };
+	}
+
+	// Returns weights for {a, b, c}; valid nonnegative weights identify points inside/on the triangle.
+	// Coplanarity and triangle altitude use a tolerance of 1e-5 times the longest edge.
+	// Returns {-1, -1, -1} for non-finite inputs, degenerate/nearly degenerate triangles,
+	// off-plane points beyond that tolerance, or weights outside the finite float range.
+	auto PointToBarycentricCoordinates2(
+		const DirectX::XMFLOAT3& point,
+		const DirectX::XMFLOAT3& a,
+		const DirectX::XMFLOAT3& b,
+		const DirectX::XMFLOAT3& c
+	) noexcept -> DirectX::XMFLOAT3
+	{
+		constexpr auto InvalidCoordinates = DirectX::XMFLOAT3{ -1.0f, -1.0f, -1.0f };
+		constexpr auto RelativeTolerance = 1e-5;
+		constexpr auto ToleranceSquared = RelativeTolerance * RelativeTolerance;
+		if (not IsFinite(point) or not IsFinite(a) or not IsFinite(b) or not IsFinite(c))
+			return InvalidCoordinates;
+
+		// Promote before subtracting, so edge/offset arithmetic does not overflow or round in float.
+		using Double3 = std::array<double, 3>;
+		const auto subtract = 
+			[](const DirectX::XMFLOAT3& lhs, const DirectX::XMFLOAT3& rhs)
+			{
+				return Double3{
+					static_cast<double>(lhs.x) - rhs.x,
+					static_cast<double>(lhs.y) - rhs.y,
+					static_cast<double>(lhs.z) - rhs.z
+				};
+			};
+		const auto dot = 
+			[](const Double3& lhs, const Double3& rhs)
+			{
+				return lhs[0] * rhs[0] + lhs[1] * rhs[1] + lhs[2] * rhs[2];
+			};
+		const auto cross = 
+			[](const Double3& lhs, const Double3& rhs)
+			{
+				return Double3{
+					lhs[1] * rhs[2] - lhs[2] * rhs[1],
+					lhs[2] * rhs[0] - lhs[0] * rhs[2],
+					lhs[0] * rhs[1] - lhs[1] * rhs[0]
+				};
+			};
+		const auto ab = subtract(b, a);
+		const auto ac = subtract(c, a);
+		const auto bc = subtract(c, b);
+		const auto offset = subtract(point, a);
+		const auto longestEdgeSquared = std::max({ dot(ab, ab), dot(ac, ac), dot(bc, bc) });
+
+		// The squared cross-product magnitude avoids subtracting nearly equal Gram products.
+		const auto normal = cross(ab, ac);
+		const auto normalSquared = dot(normal, normal);
+		// Reject zero area and an altitude <= 1e-5 of the longest edge, regardless of scale/winding.
+		if (normalSquared <= ToleranceSquared * longestEdgeSquared * longestEdgeSquared)
+			return InvalidCoordinates;
+
+		// Plane distance is |offset dot normal| / |normal|; compare squared distances without normalizing.
+		const auto planeOffset = dot(offset, normal);
+		if (planeOffset * planeOffset > ToleranceSquared * longestEdgeSquared * normalSquared)
+			return InvalidCoordinates;
+
+		// Signed area ratios give the weights for b and c; the weight for a makes their sum one.
+		const auto v = dot(cross(offset, ac), normal) / normalSquared;
+		const auto w = dot(cross(ab, offset), normal) / normalSquared;
+		const auto u = 1.0 - v - w;
+		// Very distant coplanar points can require weights too large for the XMFLOAT3 return type.
+		constexpr auto MaxFloat = static_cast<double>(std::numeric_limits<float>::max());
+		if (std::fabs(u) > MaxFloat or std::fabs(v) > MaxFloat or std::fabs(w) > MaxFloat)
+			return InvalidCoordinates;
+
+		return { static_cast<float>(u), static_cast<float>(v), static_cast<float>(w) };
 	}
 
 	struct Triangle
