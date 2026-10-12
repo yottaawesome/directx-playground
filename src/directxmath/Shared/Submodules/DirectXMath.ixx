@@ -42,6 +42,8 @@ export namespace DirectX
 		::DirectX::XMVECTOR,
 		::DirectX::BoundingBox, // replaces XNA::AxisAlignedBox
 		::DirectX::BoundingFrustum, // replaces XNA::Frustum
+
+		// XMVector
 		::DirectX::XMVectorSet,
 		::DirectX::XMVectorAdd,
 		::DirectX::XMVectorSubtract,
@@ -81,6 +83,8 @@ export namespace DirectX
 		::DirectX::XMVectorInBounds,
 		::DirectX::XMVectorSplatEpsilon,
 		::DirectX::XMVectorGreaterOrEqual,
+
+		// XMVector3
 		::DirectX::XMVector3NearEqual,
 		::DirectX::XMVector3Equal,
 		::DirectX::XMVector3NotEqual,
@@ -97,10 +101,14 @@ export namespace DirectX
 		::DirectX::XMVector3TransformNormal,
 		::DirectX::XMVector3Less,
 		::DirectX::XMVector3TransformCoord,
+
+		// XMVector4
 		::DirectX::XMVector4Normalize,
 		::DirectX::XMVector4EqualInt,
 		::DirectX::XMVector4Reflect,
 		::DirectX::XMVector4Dot,
+
+		// XMMatrix
 		::DirectX::XMMatrixDecompose,
 		::DirectX::XMMatrixTranslationFromVector,
 		::DirectX::XMMatrixScalingFromVector,
@@ -127,6 +135,8 @@ export namespace DirectX
 		::DirectX::XMMatrixRotationY,
 		::DirectX::XMMatrixRotationZ,
 		::DirectX::XMMatrixInverse,
+
+		// Misc
 		::DirectX::XMLoadFloat,
 		::DirectX::XMStoreFloat,
 		::DirectX::XMLoadFloat2,
@@ -142,15 +152,26 @@ export namespace DirectX
 		::DirectX::XMConvertToDegrees,
 		::DirectX::XMConvertVectorFloatToInt,
 		::DirectX::XMConvertVectorIntToFloat,
-		::DirectX::XMPlaneFromPoints,
-		::DirectX::XMPlaneNormalize,
+		
+		// Plane
 		::DirectX::XMPlaneDot,
 		::DirectX::XMPlaneDotCoord,
 		::DirectX::XMPlaneDotNormal,
 		::DirectX::XMPlaneEqual,
-		::DirectX::XMPlaneNearEqual,
+		::DirectX::XMPlaneFromPointNormal,
+		::DirectX::XMPlaneFromPoints,
 		::DirectX::XMPlaneIntersectLine,
+		::DirectX::XMPlaneIntersectPlane,
+		::DirectX::XMPlaneIsInfinite,
+		::DirectX::XMPlaneIsNaN,
+		::DirectX::XMPlaneNearEqual,
+		::DirectX::XMPlaneNormalize,
+		::DirectX::XMPlaneNormalizeEst,
+		::DirectX::XMPlaneNotEqual,
 		::DirectX::XMPlaneTransform,
+		::DirectX::XMPlaneTransformStream,
+
+		// Quaternion
 		::DirectX::XMQuaternionRotationMatrix,
 		::DirectX::XMQuaternionInverse,
 		::DirectX::XMQuaternionIdentity,
