@@ -302,6 +302,32 @@ export namespace Math
 // Triangles
 export namespace Math
 {
+	// If the barycentric coordinates are all in the range [0, 1] and sum to 1, then the point is inside the triangle.
+	// If the point lies outside the triangle, the barycentric coordinates will be negative or greater than 1.
+	auto PointToBarycentricCoordinates(
+		const DirectX::XMFLOAT3& point,
+		const DirectX::XMFLOAT3& a,
+		const DirectX::XMFLOAT3& b,
+		const DirectX::XMFLOAT3& c
+	) noexcept -> DirectX::XMFLOAT3
+	{
+		auto v0 = DirectX::XMLoadFloat3(&b) - DirectX::XMLoadFloat3(&a);
+		auto v1 = DirectX::XMLoadFloat3(&c) - DirectX::XMLoadFloat3(&a);
+		auto v2 = DirectX::XMLoadFloat3(&point) - DirectX::XMLoadFloat3(&a);
+		auto d00 = Dot3(v0, v0);
+		auto d01 = Dot3(v0, v1);
+		auto d11 = Dot3(v1, v1);
+		auto d20 = Dot3(v2, v0);
+		auto d21 = Dot3(v2, v1);
+		auto denom = d00 * d11 - d01 * d01;
+		if (denom == 0.0f)
+			return { -1.0f, -1.0f, -1.0f }; // Degenerate triangle
+		auto v = (d11 * d20 - d01 * d21) / denom;
+		auto w = (d00 * d21 - d01 * d20) / denom;
+		auto u = 1.0f - v - w;
+		return { u, v, w };
+	}
+
 	struct Triangle
 	{
 		DirectX::XMFLOAT3 V0 = { 0.0f, 0.0f, 0.0f };
