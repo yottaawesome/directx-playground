@@ -140,7 +140,7 @@ export namespace Win32
 		};
 	}
 
-	constexpr auto GuidNull = PlatformShared::InvocableValue<[] {return GUID_NULL; } > {};
+	constexpr auto GuidNull = PlatformShared::ConstexprValue<[] {return GUID_NULL; } > {};
 	constexpr auto EnableVirtualTerminalProcessing = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	constexpr auto StdOutputHandle = STD_OUTPUT_HANDLE;
 
